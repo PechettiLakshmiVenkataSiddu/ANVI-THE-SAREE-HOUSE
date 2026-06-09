@@ -70,15 +70,19 @@ function CheckoutPageContent() {
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!validate()) return
-    const order = createOrder(items, form, paymentMethod, couponCode)
-    clearCart()
-    router.push(`/checkout/confirmation?orderId=${order.id}`)
+    try {
+      const order = await createOrder(items, form, paymentMethod, couponCode)
+      clearCart()
+      router.push(`/checkout/confirmation?orderId=${order.id}`)
+    } catch (err) {
+      console.error('Order failed:', err)
+      alert('Failed to place order. Please try again.')
+    }
   }
-
+  
   const updateField = (field: keyof ShippingAddress, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }))
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }))
