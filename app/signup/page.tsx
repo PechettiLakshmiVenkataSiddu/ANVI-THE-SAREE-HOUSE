@@ -4,7 +4,7 @@ import SignupForm from '@/components/auth/SignupForm'
 
 export const metadata: Metadata = {
   title: 'Sign Up',
-  description: 'Create your Saree Elegance account',
+  description: 'Create your ANVI THE SAREE HOUSE account',
 }
 
 export default function SignupPage() {

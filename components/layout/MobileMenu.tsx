@@ -62,7 +62,7 @@ export default function MobileMenu() {
               className="fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-background z-50 shadow-xl md:hidden"
             >
               <div className="flex items-center justify-between p-4 border-b border-border">
-                <span className="font-serif font-bold text-primary">SAREE ELEGANCE</span>
+                <span className="font-serif font-bold text-primary">ANVI THE SAREE HOUSE</span>
                 <button onClick={() => setIsOpen(false)} aria-label="Close menu">
                   <X size={22} />
                 </button>

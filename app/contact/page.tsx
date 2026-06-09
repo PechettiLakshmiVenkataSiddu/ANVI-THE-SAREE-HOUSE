@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/layout/Footer'
 import Breadcrumbs from '@/components/layout/Breadcrumbs'
-import { Mail, Phone, MapPin, CheckCircle } from 'lucide-react'
+import { Mail, Phone, MapPin, CheckCircle, MessageCircle } from 'lucide-react'
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false)
@@ -28,20 +28,31 @@ export default function ContactPage() {
               Have a question about our sarees, orders, or returns? We&apos;d love to hear from you.
             </p>
             {[
-              { icon: Mail, label: 'Email', value: 'info@sareeelegance.com' },
-              { icon: Phone, label: 'Phone', value: '+91 98765 43210' },
-              { icon: MapPin, label: 'Address', value: 'Jaipur, Rajasthan, India' },
-            ].map(({ icon: Icon, label, value }) => (
+              { icon: Mail, label: 'Email', value: 'info@anvithesareehouse.com' },
+              { icon: Phone, label: 'Phone', value: '08639899155' },
+              { icon: MessageCircle, label: 'WhatsApp', value: '08639899155', link: 'https://wa.me/918639899155' },
+              { icon: MapPin, label: 'Address', value: 'PANTI REVU ROAD, STEAMER ROAD, Near Ramalayam, Narsapur, Andhra Pradesh 534275' },
+            ].map(({ icon: Icon, label, value, link }) => (
               <div key={label} className="flex items-start gap-4">
                 <div className="p-3 bg-secondary rounded-full">
                   <Icon size={20} className="text-primary" />
                 </div>
                 <div>
                   <p className="font-semibold text-sm">{label}</p>
-                  <p className="text-muted-foreground text-sm">{value}</p>
+                  {link ? (
+                    <a href={link} target="_blank" rel="noopener noreferrer" className="text-muted-foreground text-sm hover:text-primary transition">
+                      {value}
+                    </a>
+                  ) : (
+                    <p className="text-muted-foreground text-sm">{value}</p>
+                  )}
                 </div>
               </div>
             ))}
+            <div className="pt-4 border-t border-border">
+              <p className="font-semibold text-sm mb-1">Business Hours</p>
+              <p className="text-muted-foreground text-sm">Open until 9:30 PM</p>
+            </div>
           </div>
 
           <div className="bg-card border border-border rounded-lg p-6">

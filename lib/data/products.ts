@@ -289,7 +289,7 @@ export const testimonials: Testimonial[] = [
     name: 'Ananya Reddy',
     location: 'Hyderabad',
     rating: 5,
-    text: 'Beautiful collection and fast delivery. My wedding saree from Saree Elegance was the highlight of my special day.',
+    text: 'Beautiful collection and fast delivery. My wedding saree from ANVI THE SAREE HOUSE was the highlight of my special day.',
     image: '/images/saree-5.png',
   },
   {

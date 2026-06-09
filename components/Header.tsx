@@ -57,8 +57,8 @@ useEffect(() => {
 
             <Link href="/" className="flex-shrink-0">
               <div className="text-xl md:text-2xl font-serif font-bold text-primary text-center">
-                SAREE
-                <div className="text-[10px] md:text-xs text-accent tracking-[0.3em]">ELEGANCE</div>
+                ANVI
+                <div className="text-[10px] md:text-xs text-accent tracking-[0.3em]">THE SAREE HOUSE</div>
               </div>
             </Link>
 

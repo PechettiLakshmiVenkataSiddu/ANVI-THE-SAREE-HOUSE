@@ -5,7 +5,7 @@ import LoginForm from '@/components/auth/LoginForm'
 
 export const metadata: Metadata = {
   title: 'Login',
-  description: 'Login to your Saree Elegance account',
+  description: 'Login to your ANVI THE SAREE HOUSE account',
 }
 
 function LoginFormFallback() {

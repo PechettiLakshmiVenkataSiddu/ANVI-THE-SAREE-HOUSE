@@ -198,7 +198,7 @@ export default function LoginForm() {
       <SocialAuthButtons />
 
       <p className="text-center text-sm text-muted-foreground mt-8">
-        New to Saree Elegance?{' '}
+        New to ANVI THE SAREE HOUSE?{' '}
         <Link href="/signup" className="font-bold text-primary hover:underline">
           Create an Account
         </Link>

@@ -31,8 +31,8 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
             <div className="relative hidden lg:flex flex-col bg-secondary/80 p-10 overflow-hidden">
               <Link href="/" className="relative z-10 mb-8">
                 <div className="text-2xl font-serif font-bold text-primary">
-                  SAREE
-                  <div className="text-xs text-accent tracking-[0.35em] font-sans font-normal mt-0.5">ELEGANCE</div>
+                  ANVI
+                  <div className="text-xs text-accent tracking-[0.35em] font-sans font-normal mt-0.5">THE SAREE HOUSE</div>
                 </div>
                 <div className="w-16 h-px bg-accent mt-2" />
               </Link>
@@ -47,7 +47,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
               <div className="absolute inset-0 z-0">
                 <Image
                   src="/images/hero-saree.png"
-                  alt="Saree Elegance"
+                  alt="ANVI THE SAREE HOUSE"
                   fill
                   className="object-cover object-top opacity-90"
                   priority
@@ -61,8 +61,8 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
               {/* Mobile logo */}
               <Link href="/" className="lg:hidden mb-6 text-center">
                 <div className="text-xl font-serif font-bold text-primary inline-block">
-                  SAREE
-                  <div className="text-[10px] text-accent tracking-[0.3em]">ELEGANCE</div>
+                  ANVI
+                  <div className="text-[10px] text-accent tracking-[0.3em]">THE SAREE HOUSE</div>
                 </div>
               </Link>
 
@@ -81,7 +81,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
 
       {/* Footer */}
       <footer className="py-6 text-center text-xs text-muted-foreground space-y-2">
-        <p>© {new Date().getFullYear()} Saree Elegance. All Rights Reserved.</p>
+        <p>© {new Date().getFullYear()} ANVI THE SAREE HOUSE. All Rights Reserved.</p>
         <p>
           <Link href="#" className="hover:text-primary transition">Privacy Policy</Link>
           {' '}|{' '}

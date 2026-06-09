@@ -4,7 +4,7 @@ export const defaultUser: User = {
   id: 'user-1',
   firstName: 'Guest',
   lastName: 'User',
-  email: 'guest@sareeelegance.com',
+  email: 'guest@anvithesareehouse.com',
   phone: '',
   addresses: [],
 }

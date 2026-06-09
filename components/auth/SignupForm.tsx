@@ -68,7 +68,7 @@ export default function SignupForm() {
       <div className="text-center lg:text-left mb-8">
         <h1 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-2">Create Account</h1>
         <div className="w-12 h-px bg-accent mx-auto lg:mx-0 mb-3" />
-        <p className="text-sm text-muted-foreground">Join Saree Elegance and discover timeless beauty</p>
+        <p className="text-sm text-muted-foreground">Join ANVI THE SAREE HOUSE and discover timeless beauty</p>
       </div>
 
       {formError && (

@@ -34,7 +34,7 @@ function ConfirmationContent() {
         <CheckCircle size={40} className="text-green-600" />
       </div>
       <h1 className="text-2xl md:text-3xl font-serif font-bold mb-2">Order Confirmed!</h1>
-      <p className="text-muted-foreground mb-6">Thank you for shopping with Saree Elegance</p>
+      <p className="text-muted-foreground mb-6">Thank you for shopping with ANVI THE SAREE HOUSE</p>
 
       <div className="bg-card border border-border rounded-lg p-6 text-left space-y-3 mb-8">
         <div className="flex justify-between text-sm">

@@ -10,14 +10,14 @@ const playfair = Playfair_Display({ variable: '--font-serif', subsets: ['latin']
 
 export const metadata: Metadata = {
   title: {
-    default: 'Saree Elegance - Premium Sarees for Every Occasion',
-    template: '%s | Saree Elegance',
+    default: 'ANVI THE SAREE HOUSE - Premium Sarees for Every Occasion',
+    template: '%s | ANVI THE SAREE HOUSE',
   },
   description:
     'Discover timeless sarees with intricate zari weaving and delicate patterns crafted for every celebration. Shop Banarasi, Kanchipuram, Silk, Cotton & Designer sarees.',
   keywords: ['saree', 'banarasi saree', 'silk saree', 'kanchipuram', 'indian saree', 'wedding saree'],
   openGraph: {
-    title: 'Saree Elegance - Premium Sarees',
+    title: 'ANVI THE SAREE HOUSE - Premium Sarees',
     description: 'Premium sarees for every celebration',
     type: 'website',
   },

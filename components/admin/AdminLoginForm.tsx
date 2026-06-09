@@ -54,7 +54,7 @@ export default function AdminLoginForm() {
             <Shield size={28} className="text-primary" />
           </div>
           <h1 className="text-2xl font-serif font-bold text-foreground">Admin Login</h1>
-          <p className="text-sm text-muted-foreground mt-2">Saree Elegance Dashboard</p>
+          <p className="text-sm text-muted-foreground mt-2">ANVI THE SAREE HOUSE Dashboard</p>
         </div>
 
         {error && (
@@ -73,7 +73,7 @@ export default function AdminLoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 border border-border rounded-md bg-input text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                placeholder="admin@sareeelegance.com"
+                placeholder="admin@anvithesareehouse.com"
               />
             </div>
           </div>

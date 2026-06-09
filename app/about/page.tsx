@@ -5,7 +5,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'About Us',
-  description: 'Learn about Saree Elegance - premium sarees crafted for every celebration.',
+  description: 'Learn about ANVI THE SAREE HOUSE - premium sarees crafted for every celebration.',
 }
 
 export default function AboutPage() {
@@ -15,10 +15,10 @@ export default function AboutPage() {
       <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'About Us' }]} />
 
       <div className="max-w-4xl mx-auto px-4 py-12">
-        <h1 className="text-3xl md:text-4xl font-serif font-bold mb-6">About Saree Elegance</h1>
+        <h1 className="text-3xl md:text-4xl font-serif font-bold mb-6">About ANVI THE SAREE HOUSE</h1>
         <div className="prose prose-neutral max-w-none space-y-4 text-foreground/90">
           <p>
-            Saree Elegance is a premium destination for authentic Indian sarees. From the timeless Banarasi weaves of
+            ANVI THE SAREE HOUSE is a premium destination for authentic Indian sarees. From the timeless Banarasi weaves of
             Varanasi to the temple-inspired Kanchipuram silks, we curate collections that celebrate India&apos;s rich
             textile heritage.
           </p>

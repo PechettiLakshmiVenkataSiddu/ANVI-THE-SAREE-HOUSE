@@ -1,7 +1,7 @@
 import type { Order, OrderStatus, TrackingStep } from '@/lib/types'
 
 export function generateOrderNumber(): string {
-  return `#SE${Math.floor(1000000 + Math.random() * 9000000)}`
+  return `#ASH${Math.floor(1000000 + Math.random() * 9000000)}`
 }
 
 export function createTrackingSteps(status: OrderStatus = 'placed'): TrackingStep[] {
@@ -27,7 +27,7 @@ export function createTrackingSteps(status: OrderStatus = 'placed'): TrackingSte
 export function createDemoOrder(): Order {
   return {
     id: 'demo-order-1',
-    orderNumber: '#SE1023456',
+    orderNumber: '#ASH1023456',
     items: [
       {
         productId: '1',
@@ -64,7 +64,7 @@ export function createDemoOrder(): Order {
       firstName: 'Neha',
       lastName: 'Sharma',
       email: 'neha@example.com',
-      phone: '+91 98765 43210',
+      phone: '08639899155',
       address: '123, Green Street',
       city: 'Jaipur',
       state: 'Rajasthan',
