@@ -8,6 +8,7 @@ import Footer from '@/components/layout/Footer'
 import Breadcrumbs from '@/components/layout/Breadcrumbs'
 import ProductGallery from '@/components/product/ProductGallery'
 import RelatedProducts from '@/components/product/RelatedProducts'
+import StarRating from '@/components/product/StarRating'
 import { getDiscountPercent } from '@/lib/data/products'
 import { useCart } from '@/lib/context/cart-context'
 import { useWishlist } from '@/lib/context/wishlist-context'
@@ -34,6 +35,15 @@ export default function ProductPage({ params }: ProductPageProps) {
   const [selectedSize, setSelectedSize] = useState('')
   const [selectedBlouse, setSelectedBlouse] = useState('')
   const [quantity, setQuantity] = useState(1)
+
+  // Rating states
+  const [user, setUser] = useState<any>(null)
+  const [hasOrdered, setHasOrdered] = useState(false)
+  const [reviews, setReviews] = useState<any[]>([])
+  const [userReview, setUserReview] = useState<any>(null)
+  const [rating, setRating] = useState(0)
+  const [comment, setComment] = useState('')
+  const [submittingRating, setSubmittingRating] = useState(false)
 
   useEffect(() => {
     async function fetchProduct() {
@@ -84,11 +94,57 @@ export default function ProductPage({ params }: ProductPageProps) {
         setRelated(relatedData ?? [])
       }
 
+      // Fetch reviews for this product
+      const { data: reviewsData } = await supabase
+        .from('reviews')
+        .select('*')
+        .eq('product_id', data.id)
+        .order('created_at', { ascending: false })
+      setReviews(reviewsData ?? [])
+
       setLoading(false)
     }
 
     fetchProduct()
   }, [slug])
+
+  useEffect(() => {
+    async function fetchUserData() {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+
+      if (user && product) {
+        // Check if user has ordered this product
+        const { data: ordersData } = await supabase
+          .from('orders')
+          .select('items')
+          .eq('user_id', user.id)
+        
+        const hasOrderedProduct = ordersData?.some((order: any) =>
+          order.items?.some((item: any) => item.product_id === product.id)
+        )
+        setHasOrdered(hasOrderedProduct ?? false)
+
+        // Check if user has already reviewed this product
+        const { data: userReviewData } = await supabase
+          .from('reviews')
+          .select('*')
+          .eq('product_id', product.id)
+          .eq('user_id', user.id)
+          .single()
+        
+        if (userReviewData) {
+          setUserReview(userReviewData)
+          setRating(userReviewData.rating)
+          setComment(userReviewData.comment ?? '')
+        }
+      }
+    }
+
+    if (product) {
+      fetchUserData()
+    }
+  }, [product])
 
   if (loading) {
     return (
@@ -153,6 +209,55 @@ export default function ProductPage({ params }: ProductPageProps) {
     }
   }
 
+  const handleSubmitReview = async () => {
+    if (!user || !product || rating === 0) return
+
+    setSubmittingRating(true)
+    try {
+      if (userReview) {
+        // Update existing review
+        const { error } = await supabase
+          .from('reviews')
+          .update({ rating, comment })
+          .eq('id', userReview.id)
+        
+        if (error) throw error
+
+        // Update local state
+        setReviews(reviews.map(r => r.id === userReview.id ? { ...r, rating, comment } : r))
+        setUserReview({ ...userReview, rating, comment })
+      } else {
+        // Create new review
+        const { data, error } = await supabase
+          .from('reviews')
+          .insert({
+            product_id: product.id,
+            user_id: user.id,
+            rating,
+            comment: comment || null,
+          })
+          .select()
+          .single()
+        
+        if (error) throw error
+
+        // Update local state
+        setReviews([data, ...reviews])
+        setUserReview(data)
+      }
+    } catch (error) {
+      console.error('Error submitting review:', error)
+      alert('Failed to submit review. Please try again.')
+    } finally {
+      setSubmittingRating(false)
+    }
+  }
+
+  // Calculate average rating
+  const averageRating = reviews.length > 0
+    ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+    : product.rating ?? 0
+
   return (
     <main className="min-h-screen bg-background">
       <Header />
@@ -197,7 +302,7 @@ export default function ProductPage({ params }: ProductPageProps) {
                       key={i}
                       size={16}
                       className={
-                        i < Math.round(product.rating ?? 0)
+                        i < Math.round(averageRating)
                           ? 'fill-accent text-accent'
                           : 'text-muted'
                       }
@@ -205,7 +310,7 @@ export default function ProductPage({ params }: ProductPageProps) {
                   ))}
                 </div>
                 <span className="text-sm text-muted-foreground">
-                  ({product.reviews ?? 0} Reviews)
+                  ({reviews.length} Reviews)
                 </span>
               </div>
 
@@ -379,6 +484,75 @@ export default function ProductPage({ params }: ProductPageProps) {
         </div>
 
         <RelatedProducts products={related} />
+
+        {/* Reviews Section */}
+        <div className="mt-16 border-t border-border pt-12">
+          <h2 className="text-2xl font-serif font-bold text-foreground mb-8">Customer Reviews</h2>
+          
+          {reviews.length === 0 ? (
+            <p className="text-muted-foreground text-center py-8">No reviews yet. Be the first to review this product!</p>
+          ) : (
+            <div className="space-y-6">
+              {reviews.map((review) => (
+                <div key={review.id} className="bg-card border border-border rounded-lg p-6">
+                  <div className="flex items-center gap-3 mb-3">
+                    <StarRating rating={review.rating} readonly size={16} />
+                    <span className="text-sm text-muted-foreground">
+                      {new Date(review.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                  {review.comment && (
+                    <p className="text-foreground">{review.comment}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Rating Form - Only show if logged in and has ordered */}
+          {user && hasOrdered && (
+            <div className="mt-8 bg-card border border-border rounded-lg p-6">
+              <h3 className="font-bold text-foreground mb-4">
+                {userReview ? 'Update Your Review' : 'Write a Review'}
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-semibold mb-2 block">Your Rating</label>
+                  <StarRating rating={rating} onRatingChange={setRating} size={24} />
+                </div>
+                <div>
+                  <label className="text-sm font-semibold mb-2 block">Your Review (Optional)</label>
+                  <textarea
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    rows={4}
+                    placeholder="Share your experience with this product..."
+                    className="w-full px-4 py-2 border border-border rounded-md bg-input text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  />
+                </div>
+                <button
+                  onClick={handleSubmitReview}
+                  disabled={submittingRating || rating === 0}
+                  className="bg-primary text-primary-foreground px-6 py-2 rounded-md text-sm font-semibold disabled:opacity-60"
+                >
+                  {submittingRating ? 'Submitting...' : userReview ? 'Update Review' : 'Submit Review'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {user && !hasOrdered && (
+            <p className="text-sm text-muted-foreground mt-4 text-center">
+              You must purchase this product before writing a review.
+            </p>
+          )}
+
+          {!user && (
+            <p className="text-sm text-muted-foreground mt-4 text-center">
+              Please <a href="/login" className="text-accent hover:text-primary">log in</a> to write a review.
+            </p>
+          )}
+        </div>
       </div>
 
       <Footer />
