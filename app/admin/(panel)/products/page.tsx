@@ -6,8 +6,8 @@ import { Plus, Pencil, Trash2 } from 'lucide-react'
 import AdminHeader from '@/components/admin/AdminHeader'
 import LoadingSpinner from '@/components/admin/LoadingSpinner'
 import ImageUploader from '@/components/admin/ImageUploader'
-import { getProducts, createProduct, updateProduct, deleteProduct } from '@/lib/admin/queries'
-import type { DbProduct } from '@/lib/types/admin'
+import { getProducts, createProduct, updateProduct, deleteProduct, getCollections } from '@/lib/admin/queries'
+import type { DbProduct, DbCollection } from '@/lib/types/admin'
 
 const emptyProduct = (): Partial<DbProduct> => ({
   slug: '',
@@ -29,10 +29,12 @@ const emptyProduct = (): Partial<DbProduct> => ({
   is_best_seller: false,
   is_featured: false,
   tags: [],
+  collection_id: null,
 })
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<DbProduct[]>([])
+  const [collections, setCollections] = useState<DbCollection[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [editing, setEditing] = useState<Partial<DbProduct> | null>(null)
@@ -40,8 +42,11 @@ export default function AdminProductsPage() {
 
   const load = () => {
     setLoading(true)
-    getProducts()
-      .then(setProducts)
+    Promise.all([getProducts(), getCollections()])
+      .then(([productsData, collectionsData]) => {
+        setProducts(productsData)
+        setCollections(collectionsData)
+      })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false))
   }
@@ -125,6 +130,21 @@ export default function AdminProductsPage() {
             <div>
               <label className="text-xs font-semibold">Category</label>
               <input value={editing.category ?? ''} onChange={(e) => setEditing({ ...editing, category: e.target.value })} className="w-full mt-1 px-3 py-2 border border-border rounded-md text-sm bg-input" />
+            </div>
+            <div>
+              <label className="text-xs font-semibold">Collection</label>
+              <select
+                value={editing.collection_id ?? ''}
+                onChange={(e) => setEditing({ ...editing, collection_id: e.target.value || null })}
+                className="w-full mt-1 px-3 py-2 border border-border rounded-md text-sm bg-input"
+              >
+                <option value="">No Collection</option>
+                {collections.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.title}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
           <div>

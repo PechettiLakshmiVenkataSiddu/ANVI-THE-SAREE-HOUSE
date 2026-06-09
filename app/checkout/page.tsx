@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Header from '@/components/Header'
 import Footer from '@/components/layout/Footer'
@@ -12,7 +12,7 @@ import type { ShippingAddress } from '@/lib/types'
 import Image from 'next/image'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 
-const paymentMethods = ['Cash on Delivery', 'UPI', 'Credit/Debit Card', 'Net Banking']
+const paymentMethods = ['Cash on Delivery', 'UPI', 'Credit/Debit Card', 'Net Banking', 'Razorpay']
 
 export default function CheckoutPage() {
   return (
@@ -41,6 +41,18 @@ function CheckoutPageContent() {
   })
   const [paymentMethod, setPaymentMethod] = useState('Cash on Delivery')
   const [errors, setErrors] = useState<Partial<Record<keyof ShippingAddress, string>>>({})
+  const [loading, setLoading] = useState(false)
+
+  // Load Razorpay script
+  useEffect(() => {
+    const script = document.createElement('script')
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js'
+    script.async = true
+    document.body.appendChild(script)
+    return () => {
+      document.body.removeChild(script)
+    }
+  }, [])
 
   if (items.length === 0) {
     return (
@@ -73,13 +85,81 @@ function CheckoutPageContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!validate()) return
+
+    setLoading(true)
+
     try {
-      const order = await createOrder(items, form, paymentMethod, couponCode)
-      clearCart()
-      router.push(`/checkout/confirmation?orderId=${order.id}`)
+      // If Razorpay is selected, handle Razorpay payment flow
+      if (paymentMethod === 'Razorpay') {
+        const response = await fetch('/api/payment/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: total }),
+        })
+
+        const { order } = await response.json()
+
+        if (!order) {
+          throw new Error('Failed to create Razorpay order')
+        }
+
+        const options = {
+          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '',
+          amount: order.amount,
+          currency: order.currency,
+          name: 'ANVI THE SAREE HOUSE',
+          description: 'Saree Purchase',
+          order_id: order.id,
+          handler: async function (response: any) {
+            // Verify payment signature
+            const verifyResponse = await fetch('/api/payment/verify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              }),
+            })
+
+            const verifyData = await verifyResponse.json()
+
+            if (verifyData.success) {
+              // Payment verified, create order
+              const order = await createOrder(items, form, paymentMethod, couponCode)
+              clearCart()
+              router.push(`/checkout/confirmation?orderId=${order.id}`)
+            } else {
+              alert('Payment verification failed. Please try again.')
+              setLoading(false)
+            }
+          },
+          prefill: {
+            name: `${form.firstName} ${form.lastName}`,
+            email: form.email,
+            contact: form.phone,
+          },
+          theme: {
+            color: '#8B5E3C',
+          },
+        }
+
+        const razorpay = new (window as any).Razorpay(options)
+        razorpay.on('payment.failed', function (response: any) {
+          alert('Payment failed. Please try again.')
+          setLoading(false)
+        })
+        razorpay.open()
+      } else {
+        // For other payment methods, create order directly
+        const order = await createOrder(items, form, paymentMethod, couponCode)
+        clearCart()
+        router.push(`/checkout/confirmation?orderId=${order.id}`)
+      }
     } catch (err) {
       console.error('Order failed:', err)
       alert('Failed to place order. Please try again.')
+      setLoading(false)
     }
   }
   
@@ -213,9 +293,10 @@ function CheckoutPageContent() {
                 </div>
                 <button
                   type="submit"
-                  className="w-full bg-primary text-primary-foreground py-3 rounded-md font-semibold mt-6 hover:opacity-90 transition"
+                  disabled={loading}
+                  className="w-full bg-primary text-primary-foreground py-3 rounded-md font-semibold mt-6 hover:opacity-90 transition disabled:opacity-60"
                 >
-                  PLACE ORDER
+                  {loading ? 'PROCESSING...' : 'PLACE ORDER'}
                 </button>
               </div>
             </div>
