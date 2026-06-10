@@ -104,7 +104,7 @@ function CheckoutPageContent() {
         }
 
         const options = {
-          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '',
+          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_SzazBWGfFjJ39u',
           amount: order.amount,
           currency: order.currency,
           name: 'ANVI THE SAREE HOUSE',
@@ -162,7 +162,7 @@ function CheckoutPageContent() {
       setLoading(false)
     }
   }
-  
+
   const updateField = (field: keyof ShippingAddress, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }))
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }))
@@ -235,9 +235,8 @@ function CheckoutPageContent() {
                   {paymentMethods.map((method) => (
                     <label
                       key={method}
-                      className={`flex items-center gap-3 p-3 border rounded-md cursor-pointer transition ${
-                        paymentMethod === method ? 'border-primary bg-secondary/50' : 'border-border hover:border-primary/50'
-                      }`}
+                      className={`flex items-center gap-3 p-3 border rounded-md cursor-pointer transition ${paymentMethod === method ? 'border-primary bg-secondary/50' : 'border-border hover:border-primary/50'
+                        }`}
                     >
                       <input
                         type="radio"
