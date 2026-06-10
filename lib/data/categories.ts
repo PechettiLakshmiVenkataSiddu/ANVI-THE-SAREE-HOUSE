@@ -12,7 +12,7 @@ export const categories: Category[] = [
     id: '2',
     slug: 'banarasi',
     title: 'BANARASI',
-    image: '/images/silk-collection.png',
+    image: '/images/banarasi-collection.png',
     description: 'Luxurious zari work from Varanasi',
   },
   {
@@ -33,14 +33,14 @@ export const categories: Category[] = [
     id: '5',
     slug: 'designer',
     title: 'DESIGNER',
-    image: '/images/chiffon-collection.png',
+    image: '/images/designer-collection.png',
     description: 'Contemporary designer creations',
   },
   {
     id: '6',
     slug: 'wedding',
     title: 'WEDDING',
-    image: '/images/net-collection.png',
+    image: '/images/wedding-collection.png',
     description: 'Bridal and wedding collection',
   },
 ]
