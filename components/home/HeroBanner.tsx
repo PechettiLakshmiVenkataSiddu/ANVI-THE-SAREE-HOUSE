@@ -8,21 +8,21 @@ import Link from 'next/link'
 
 const heroSlides = [
   {
-    image: '/images/hero-saree.png',
+    image: '/images/hero-saree-1.png',
     title: 'TIMELESS BEAUTY',
     subtitle: 'ELEGANCE IN EVERY DRAPE',
     description: 'Premium Sarees for Every Occasion',
     cta: '/shop',
   },
   {
-    image: '/images/silk-collection.png',
+    image: '/images/hero-saree-2.png',
     title: 'LUXURY COLLECTION',
     subtitle: 'FINEST SILKS',
     description: 'Crafted for Celebrations',
     cta: '/shop?category=silk',
   },
   {
-    image: '/images/kanchipuram-collection.png',
+    image: '/images/hero-saree-3.png',
     title: 'TRADITIONAL CRAFT',
     subtitle: 'KANCHIPURAM SILKS',
     description: 'Temple-Inspired Masterpieces',
