@@ -29,23 +29,12 @@ export default function Footer() {
           </div>
 
           {/* Column 2 - Brand Info */}
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <h4 className="font-serif text-xl font-bold mb-4">ANVI THE SAREE HOUSE</h4>
-            <p className="text-sm opacity-90 leading-relaxed">
-              Premium sarees for every celebration.
-            </p>
-            <div className="flex gap-3 mt-4">
-              {[Share2, Globe, Mail, Heart].map((Icon, i) => (
-                <a
-                  key={i}
-                  href="#"
-                  className="p-2 rounded-full bg-primary-foreground/10 hover:bg-primary-foreground/20 transition"
-                  aria-label="Social link"
-                >
-                  <Icon size={18} />
-                </a>
-              ))}
-            </div>
+          <div style={{ display: 'flex', flexDirection: 'column'  }}>
+            <h4 className="font-serif text-l font-bold mb-4 text-[#D4AF37]">ANVI THE SAREE HOUSE</h4>
+            <p className="text-sm opacity-90 mb-4 leading-relaxed">
+              ANVI CEO:MEKALA SATISH
+            </p><p className="text-xs opacity-90 mb-4 leading-relaxed">MANAGING DIRECTORS:<br></br>KASI ANNAPURNA,YASWANTH SAI,HEMANTH SAI</p>
+            
           </div>
 
           {/* Column 3 - Shop */}
