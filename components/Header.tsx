@@ -21,13 +21,13 @@ export default function Header() {
   const { itemCount: cartCount } = useCart()
   const { itemCount: wishlistCount } = useWishlist()
 
-  const [dbCollections, setDbCollections] = useState<{title: string, slug: string}[]>([])
+  const [dbCollections, setDbCollections] = useState<{ title: string, slug: string }[]>([])
 
-useEffect(() => {
-  const supabase = createClient()
-  supabase.from('collections').select('title, slug').eq('is_active', true)
-    .then(({ data }) => { if (data) setDbCollections(data) })
-}, [])
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.from('collections').select('title, slug').eq('is_active', true)
+      .then(({ data }) => { if (data) setDbCollections(data) })
+  }, [])
 
   useEffect(() => {
     if (searchOpen && searchRef.current) {
@@ -47,7 +47,7 @@ useEffect(() => {
   return (
     <>
       <div className="bg-primary text-primary-foreground py-2 text-center text-sm tracking-wide">
-        FREE SHIPPING ON ORDERS ABOVE ₹1999
+        FREE SHIPPING ALL OVER INDIA | International Shipping Available
       </div>
 
       <header className="bg-background border-b border-border sticky top-0 z-40">
@@ -88,23 +88,23 @@ useEffect(() => {
                 </div>
               </div>
               <div className="relative group">
-  <span className="flex items-center gap-1 text-foreground hover:text-primary transition cursor-pointer">
-    COLLECTIONS <ChevronDown size={14} />
-  </span>
-  <div className="absolute left-0 top-full pt-2 w-48 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-    <div className="bg-card border border-border rounded-md shadow-lg py-1">
-      {dbCollections.map((col) => (
-        <Link
-          key={col.slug}
-          href={`/collections/${col.slug}`}
-          className="block px-4 py-2 hover:bg-secondary text-sm capitalize"
-        >
-          {col.title}
-        </Link>
-      ))}
-    </div>
-  </div>
-</div>
+                <span className="flex items-center gap-1 text-foreground hover:text-primary transition cursor-pointer">
+                  COLLECTIONS <ChevronDown size={14} />
+                </span>
+                <div className="absolute left-0 top-full pt-2 w-48 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <div className="bg-card border border-border rounded-md shadow-lg py-1">
+                    {dbCollections.map((col) => (
+                      <Link
+                        key={col.slug}
+                        href={`/collections/${col.slug}`}
+                        className="block px-4 py-2 hover:bg-secondary text-sm capitalize"
+                      >
+                        {col.title}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
               <Link href="/shop?filter=new" className="text-foreground hover:text-primary transition">
                 NEW ARRIVALS
               </Link>

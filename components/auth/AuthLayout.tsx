@@ -15,7 +15,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
       {/* Top shipping banner */}
       <div className="bg-primary text-primary-foreground py-2.5 text-center text-sm tracking-wide flex items-center justify-center gap-2">
         <span className="opacity-90">🚚</span>
-        FREE SHIPPING ON ORDERS ABOVE ₹1999
+        FREE SHIPPING ALL OVER INDIA | International Shipping Available
       </div>
 
       {/* Main content */}

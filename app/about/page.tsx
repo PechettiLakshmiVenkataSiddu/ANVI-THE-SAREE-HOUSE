@@ -30,7 +30,7 @@ export default function AboutPage() {
           <h2 className="text-xl font-serif font-bold pt-4">Our Promise</h2>
           <ul className="list-disc pl-6 space-y-2">
             <li>100% authentic fabrics and traditional weaving techniques</li>
-            <li>Free shipping on orders above ₹1999</li>
+            <li>Free shipping all over India</li>
             <li>Easy 7-day returns on unworn items</li>
             <li>Secure payment options</li>
             <li>Dedicated customer support</li>

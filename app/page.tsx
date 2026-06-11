@@ -15,7 +15,7 @@ import { categories } from '@/lib/data/categories'
 
 const features = [
   { icon: Package, title: 'PREMIUM QUALITY', description: 'Finest Fabrics' },
-  { icon: Truck, title: 'FREE SHIPPING', description: 'On orders above ₹1999' },
+  { icon: Truck, title: 'FREE SHIPPING', description: 'Free delivery all over India' },
   { icon: RotateCcw, title: 'EASY RETURNS', description: 'Within 7 days' },
   { icon: Lock, title: 'SECURE PAYMENTS', description: '100% Safe & Secure' },
   { icon: Headphones, title: '24/7 SUPPORT', description: "We're here to help" },
@@ -23,10 +23,10 @@ const features = [
 
 export default function HomePage() {
   // ✅ Fixed
-const [featuredProducts, setFeaturedProducts] = useState<any[]>([])
-const [newArrivals, setNewArrivals] = useState<any[]>([])
-const [bestSellers, setBestSellers] = useState<any[]>([])
-const [loading, setLoading] = useState<boolean>(true)
+  const [featuredProducts, setFeaturedProducts] = useState<any[]>([])
+  const [newArrivals, setNewArrivals] = useState<any[]>([])
+  const [bestSellers, setBestSellers] = useState<any[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
 
   useEffect(() => {
     fetchAllProducts()

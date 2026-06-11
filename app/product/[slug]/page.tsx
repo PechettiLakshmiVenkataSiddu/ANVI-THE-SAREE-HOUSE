@@ -119,7 +119,7 @@ export default function ProductPage({ params }: ProductPageProps) {
           .from('orders')
           .select('items')
           .eq('user_id', user.id)
-        
+
         const hasOrderedProduct = ordersData?.some((order: any) =>
           order.items?.some((item: any) => item.product_id === product.id)
         )
@@ -132,7 +132,7 @@ export default function ProductPage({ params }: ProductPageProps) {
           .eq('product_id', product.id)
           .eq('user_id', user.id)
           .single()
-        
+
         if (userReviewData) {
           setUserReview(userReviewData)
           setRating(userReviewData.rating)
@@ -220,7 +220,7 @@ export default function ProductPage({ params }: ProductPageProps) {
           .from('reviews')
           .update({ rating, comment })
           .eq('id', userReview.id)
-        
+
         if (error) throw error
 
         // Update local state
@@ -238,7 +238,7 @@ export default function ProductPage({ params }: ProductPageProps) {
           })
           .select()
           .single()
-        
+
         if (error) throw error
 
         // Update local state
@@ -337,7 +337,7 @@ export default function ProductPage({ params }: ProductPageProps) {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
                 {[
                   { icon: Package, title: 'PREMIUM QUALITY', desc: 'Finest Fabrics' },
-                  { icon: Truck, title: 'FREE SHIPPING', desc: 'Above ₹1999' },
+                  { icon: Truck, title: 'FREE SHIPPING', desc: 'All over India' },
                   { icon: RotateCcw, title: 'EASY RETURNS', desc: 'Within 7 days' },
                 ].map(({ icon: Icon, title, desc }) => (
                   <div key={title} className="flex items-center gap-2 p-3 bg-secondary/50 rounded-lg">
@@ -365,11 +365,10 @@ export default function ProductPage({ params }: ProductPageProps) {
                       <button
                         key={colorName}
                         onClick={() => setSelectedColor(colorName)}
-                        className={`w-8 h-8 rounded-full border-2 transition ${
-                          selectedColor === colorName
+                        className={`w-8 h-8 rounded-full border-2 transition ${selectedColor === colorName
                             ? 'border-foreground scale-110 ring-2 ring-offset-2 ring-primary/30'
                             : 'border-border'
-                        }`}
+                          }`}
                         style={{ backgroundColor: colorHex }}
                         title={colorName}
                       />
@@ -388,11 +387,10 @@ export default function ProductPage({ params }: ProductPageProps) {
                     <button
                       key={size}
                       onClick={() => setSelectedSize(size)}
-                      className={`px-4 py-2 text-xs border rounded-md transition ${
-                        selectedSize === size
+                      className={`px-4 py-2 text-xs border rounded-md transition ${selectedSize === size
                           ? 'border-primary bg-primary text-primary-foreground'
                           : 'border-border hover:border-primary'
-                      }`}
+                        }`}
                     >
                       {size}
                     </button>
@@ -410,11 +408,10 @@ export default function ProductPage({ params }: ProductPageProps) {
                     <button
                       key={option}
                       onClick={() => setSelectedBlouse(option)}
-                      className={`px-4 py-2 text-xs border rounded-md transition ${
-                        selectedBlouse === option
+                      className={`px-4 py-2 text-xs border rounded-md transition ${selectedBlouse === option
                           ? 'border-primary bg-primary text-primary-foreground'
                           : 'border-border hover:border-primary'
-                      }`}
+                        }`}
                     >
                       {option}
                     </button>
@@ -488,7 +485,7 @@ export default function ProductPage({ params }: ProductPageProps) {
         {/* Reviews Section */}
         <div className="mt-16 border-t border-border pt-12">
           <h2 className="text-2xl font-serif font-bold text-foreground mb-8">Customer Reviews</h2>
-          
+
           {reviews.length === 0 ? (
             <p className="text-muted-foreground text-center py-8">No reviews yet. Be the first to review this product!</p>
           ) : (

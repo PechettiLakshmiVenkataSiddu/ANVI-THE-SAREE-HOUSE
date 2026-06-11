@@ -5,8 +5,9 @@ export function calculateSubtotal(items: CartItem[]): number {
   return items.reduce((sum, item) => sum + item.price * item.quantity, 0)
 }
 
-export function calculateShipping(subtotal: number): number {
-  return subtotal >= FREE_SHIPPING_THRESHOLD || subtotal === 0 ? 0 : SHIPPING_COST
+export function calculateShipping(subtotal: number, country: string = 'India'): number {
+  if (country === 'India' || country === '' || subtotal === 0) return 0
+  return SHIPPING_COST
 }
 
 export function calculateDiscount(subtotal: number, couponCode: string | null): number {

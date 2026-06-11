@@ -1,4 +1,4 @@
-export const FREE_SHIPPING_THRESHOLD = 1999
+export const FREE_SHIPPING_THRESHOLD = 0
 export const SHIPPING_COST = 99
 export const TAX_RATE = 0
 
