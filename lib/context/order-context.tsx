@@ -37,7 +37,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabase  
         .from('orders')
         .select('*')
         .eq('user_id', user.id)
@@ -98,27 +98,27 @@ export function OrderProvider({ children }: { children: ReactNode }) {
       })
 
       const orderData = {
-        user_id: user.id,
-        order_number: orderNumber,
-        items: items.map((item) => ({
-          productId: item.productId,
-          name: item.name,
-          price: item.price,
-          image: item.image,
-          quantity: item.quantity,
-          color: item.color,
-        })),
-        subtotal,
-        shipping,
-        discount,
-        total,
-        status: 'placed',
-        shipping_address: shippingAddress,
-        payment_method: paymentMethod,
-        coupon_code: couponCode,
-        estimated_delivery: estimatedDelivery,
-      }
-
+  user_id: user.id,
+  order_number: orderNumber,
+  items: items.map((item) => ({
+    productId: item.productId,
+    name: item.name,
+    price: item.price,
+    image: item.image,
+    quantity: item.quantity,
+    color: item.color,
+  })),
+  subtotal,
+  shipping,
+  discount,
+  total,
+  status: 'placed',
+  payment_status: paymentMethod === 'Razorpay' ? 'paid' : 'pending',  // ← ADD THIS
+  shipping_address: shippingAddress,
+  payment_method: paymentMethod,
+  coupon_code: couponCode,
+  estimated_delivery: estimatedDelivery,
+}
       const { data, error } = await supabase
         .from('orders')
         .insert(orderData)
@@ -142,6 +142,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
         trackingSteps: createTrackingSteps(data.status),
         shippingAddress: data.shipping_address,
         paymentMethod: data.payment_method,
+        paymentStatus: data.payment_status,
         couponCode: data.coupon_code,
         createdAt: data.created_at,
         estimatedDelivery: data.estimated_delivery,

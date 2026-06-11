@@ -102,6 +102,7 @@ export interface Order {
   discount: number
   total: number
   status: OrderStatus
+  paymentStatus?: string
   trackingSteps: TrackingStep[]
   shippingAddress: ShippingAddress
   paymentMethod: string
