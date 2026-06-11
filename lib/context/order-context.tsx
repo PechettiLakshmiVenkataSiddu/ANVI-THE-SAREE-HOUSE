@@ -97,28 +97,51 @@ export function OrderProvider({ children }: { children: ReactNode }) {
         year: 'numeric',
       })
 
+      // Allowed order statuses per database constraint
+      const allowedStatuses = ['pending', 'processing', 'shipped', 'out_for_delivery', 'delivered', 'cancelled']
+
+      // Determine status based on payment method
+      // Razorpay payments are successful, so order should be in processing
+      // Cash on Delivery orders start as pending
+      let orderStatus = paymentMethod === 'Razorpay' ? 'processing' : 'pending'
+
+      // Defensive validation: ensure status is in allowed list
+      if (!allowedStatuses.includes(orderStatus)) {
+        console.error('[OrderContext] Invalid status detected:', orderStatus, 'Defaulting to pending')
+        orderStatus = 'pending'
+      }
+
       const orderData = {
-  user_id: user.id,
-  order_number: orderNumber,
-  items: items.map((item) => ({
-    productId: item.productId,
-    name: item.name,
-    price: item.price,
-    image: item.image,
-    quantity: item.quantity,
-    color: item.color,
-  })),
-  subtotal,
-  shipping,
-  discount,
-  total,
-  status: 'placed',
-  payment_status: paymentMethod === 'Razorpay' ? 'paid' : 'pending',  // ← ADD THIS
-  shipping_address: shippingAddress,
-  payment_method: paymentMethod,
-  coupon_code: couponCode,
-  estimated_delivery: estimatedDelivery,
-}
+        user_id: user.id,
+        order_number: orderNumber,
+        items: items.map((item) => ({
+          productId: item.productId,
+          name: item.name,
+          price: item.price,
+          image: item.image,
+          quantity: item.quantity,
+          color: item.color,
+        })),
+        subtotal,
+        shipping,
+        discount,
+        total,
+        status: orderStatus,
+        payment_status: paymentMethod === 'Razorpay' ? 'paid' : 'pending',
+        shipping_address: shippingAddress,
+        payment_method: paymentMethod,
+        coupon_code: couponCode,
+        estimated_delivery: estimatedDelivery,
+      }
+
+      console.log('[OrderContext] Creating order with payload:', {
+        orderNumber,
+        paymentMethod,
+        status: orderStatus,
+        payment_status: paymentMethod === 'Razorpay' ? 'paid' : 'pending',
+        total,
+      })
+
       const { data, error } = await supabase
         .from('orders')
         .insert(orderData)
@@ -126,9 +149,12 @@ export function OrderProvider({ children }: { children: ReactNode }) {
         .single()
 
       if (error) {
-        console.error('Error creating order:', error)
+        console.error('[OrderContext] Error creating order:', error)
+        console.error('[OrderContext] Order payload:', orderData)
         throw new Error('Failed to create order')
       }
+
+      console.log('[OrderContext] Order created successfully:', data.id)
 
       const newOrder: Order = {
         id: data.id,
