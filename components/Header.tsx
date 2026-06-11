@@ -65,13 +65,13 @@ export default function Header() {
   />
   <span style={{
     fontFamily: 'Georgia, serif',
-    fontSize: '11px',
+    fontSize: '10px',
     letterSpacing: '0.2em',
     color: '#7B2D42',
-    fontWeight: '500',
-    marginTop: '2px'
+    fontWeight: '600',
+    marginTop: '0px'
   }}>
-    ANVI THE SAREE HOUSE
+    ANVI THE SAREE HOUSE <strong>™</strong>
   </span>
 </Link>
 
