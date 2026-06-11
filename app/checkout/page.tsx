@@ -12,7 +12,7 @@ import type { ShippingAddress } from '@/lib/types'
 import Image from 'next/image'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 
-const paymentMethods = ['Cash on Delivery', 'UPI', 'Credit/Debit Card', 'Net Banking', 'Razorpay']
+const paymentMethods = ['Cash on Delivery', 'Razorpay']
 
 export default function CheckoutPage() {
   return (
