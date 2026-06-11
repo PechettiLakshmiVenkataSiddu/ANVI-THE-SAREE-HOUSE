@@ -102,3 +102,23 @@ export const ADMIN_ORDER_STATUSES: { value: AdminOrderStatus; label: string }[] 
   { value: 'out_for_delivery', label: 'Out for Delivery' },
   { value: 'delivered', label: 'Delivered' },
 ]
+
+// Map UI status values to valid database status values
+export const UI_STATUS_TO_DB_STATUS: Record<AdminOrderStatus, string> = {
+  placed: 'pending',
+  confirmed: 'processing',
+  packed: 'processing',
+  shipped: 'shipped',
+  out_for_delivery: 'out_for_delivery',
+  delivered: 'delivered',
+}
+
+// Map database status values back to UI status values for display
+export const DB_STATUS_TO_UI_STATUS: Record<string, AdminOrderStatus> = {
+  pending: 'placed',
+  processing: 'confirmed',
+  shipped: 'shipped',
+  out_for_delivery: 'out_for_delivery',
+  delivered: 'delivered',
+  cancelled: 'delivered',
+}

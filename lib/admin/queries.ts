@@ -13,6 +13,7 @@ import type {
   DbProfile,
   AdminOrderStatus,
 } from '@/lib/types/admin'
+import { UI_STATUS_TO_DB_STATUS, ADMIN_ORDER_STATUSES, DB_STATUS_TO_UI_STATUS } from '@/lib/types/admin'
 
 async function requireAdminSession() {
   const { data: { user }, error } = await supabase.auth.getUser()
@@ -37,12 +38,18 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
   const totalRevenue = (ordersRes.data ?? []).reduce((sum, o) => sum + Number(o.total), 0)
 
+  // Map database status values to UI status values for recent orders
+  const transformedRecentOrders = (recentRes.data ?? []).map((order: any) => ({
+    ...order,
+    status: DB_STATUS_TO_UI_STATUS[order.status] || order.status,
+  }))
+
   return {
     totalOrders: ordersRes.count ?? 0,
     totalProducts: productsRes.count ?? 0,
     totalCustomers: customersRes.count ?? 0,
     totalRevenue,
-    recentOrders: (recentRes.data ?? []) as DbOrder[],
+    recentOrders: transformedRecentOrders as DbOrder[],
   }
 }
 
@@ -104,25 +111,71 @@ export async function getOrders(): Promise<DbOrder[]> {
   await requireAdminSession()
   const { data, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false })
   if (error) throw new Error(formatDbError(error))
-  return (data ?? []) as DbOrder[]
+
+  // Map database status values to UI status values for display
+  const transformedOrders = (data ?? []).map((order: any) => ({
+    ...order,
+    status: DB_STATUS_TO_UI_STATUS[order.status] || order.status,
+  }))
+
+  return transformedOrders as DbOrder[]
 }
 
 export async function getOrder(id: string): Promise<DbOrder | null> {
   const { data, error } = await supabase.from('orders').select('*').eq('id', id).maybeSingle()
   if (error) return null
-  return data as DbOrder | null
+
+  if (!data) return null
+
+  // Map database status value to UI status value for display
+  const transformedOrder = {
+    ...data,
+    status: DB_STATUS_TO_UI_STATUS[data.status] || data.status,
+  }
+
+  return transformedOrder as DbOrder | null
 }
 
 export async function updateOrderStatus(id: string, status: AdminOrderStatus) {
   await requireAdminSession()
+
+  // Find the UI label for the selected status
+  const statusLabel = ADMIN_ORDER_STATUSES.find(s => s.value === status)?.label || status
+
+  // Map UI status to valid database status
+  const dbStatus = UI_STATUS_TO_DB_STATUS[status]
+
+  console.log('[admin/queries] Updating order status:', {
+    orderId: id,
+    uiLabel: statusLabel,
+    uiValue: status,
+    dbValue: dbStatus,
+  })
+
   const { data, error } = await supabase
     .from('orders')
-    .update({ status })
+    .update({ status: dbStatus })
     .eq('id', id)
     .select()
     .single()
-  if (error) throw new Error(formatDbError(error))
-  return data as DbOrder
+
+  if (error) {
+    console.error('[admin/queries] Error updating order status:', error)
+    throw new Error(formatDbError(error))
+  }
+
+  console.log('[admin/queries] Order status updated successfully:', {
+    orderId: id,
+    newStatus: data.status,
+  })
+
+  // Map database status back to UI status for display
+  const transformedOrder = {
+    ...data,
+    status: DB_STATUS_TO_UI_STATUS[data.status] || data.status,
+  }
+
+  return transformedOrder as DbOrder
 }
 
 export async function getCustomers(): Promise<DbProfile[]> {
@@ -149,7 +202,14 @@ export async function getCustomerOrders(userId: string): Promise<DbOrder[]> {
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
   if (error) throw new Error(formatDbError(error))
-  return (data ?? []) as DbOrder[]
+
+  // Map database status values to UI status values for display
+  const transformedOrders = (data ?? []).map((order: any) => ({
+    ...order,
+    status: DB_STATUS_TO_UI_STATUS[order.status] || order.status,
+  }))
+
+  return transformedOrders as DbOrder[]
 }
 
 export async function getCollections(): Promise<DbCollection[]> {
