@@ -1,5 +1,5 @@
 'use client'
-
+import Image from 'next/image'
 import { Search, Heart, ShoppingCart, ChevronDown, X } from 'lucide-react'
 import Link from 'next/link'
 import { useState, useRef, useEffect } from 'react'
@@ -56,10 +56,16 @@ export default function Header() {
             <MobileMenu />
 
             <Link href="/" className="flex-shrink-0">
-              <div className="text-xl md:text-2xl font-serif font-bold text-primary text-center">
-                ANVI
-                <div className="text-[10px] md:text-xs text-accent tracking-[0.3em]">THE SAREE HOUSE</div>
-              </div>
+              <Link href="/" className="flex-shrink-0">
+  <Image
+    src="/images/logo.png"
+    alt="ANVI THE SAREE HOUSE"
+    width={120}
+    height={60}
+    className="object-contain"
+  />
+</Link>
+              
             </Link>
 
             <nav className="hidden md:flex items-center gap-6 lg:gap-8 flex-1 justify-center text-xs lg:text-sm font-medium">
