@@ -55,18 +55,25 @@ export default function Header() {
           <div className="flex items-center justify-between gap-4">
             <MobileMenu />
 
-            <Link href="/" className="flex-shrink-0" style={{ marginTop: '0px', marginBottom: '0px', paddingTop: '0px', paddingBottom: '0px' }}>
-              <Link href="/" className="flex-shrink-0" style={{ marginTop: '0px', marginBottom: '0px', paddingTop: '0px', paddingBottom: '0px' }}>
+           <Link href="/" className="flex-shrink-0 flex flex-col items-center">
   <Image
     src="/images/logo.png"
     alt="ANVI THE SAREE HOUSE"
-    width={120}
+    width={80}
     height={60}
     className="object-contain"
   />
+  <span style={{
+    fontFamily: 'Georgia, serif',
+    fontSize: '11px',
+    letterSpacing: '0.2em',
+    color: '#7B2D42',
+    fontWeight: '500',
+    marginTop: '2px'
+  }}>
+    ANVI THE SAREE HOUSE
+  </span>
 </Link>
-
-            </Link>
 
             <nav className="hidden md:flex items-center gap-6 lg:gap-8 flex-1 justify-center text-xs lg:text-sm font-medium">
               <Link href="/" className="text-foreground hover:text-primary transition">
