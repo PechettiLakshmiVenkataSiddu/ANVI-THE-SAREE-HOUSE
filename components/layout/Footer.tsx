@@ -12,6 +12,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           <div>
+            <img src="/images/owner.jpg" alt="Owner" style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', border: '2px solid gold' }} />
             <h4 className="font-serif text-xl font-bold mb-4">ANVI THE SAREE HOUSE</h4>
             <p className="text-sm opacity-90 leading-relaxed">
               Premium sarees for every celebration. Timeless beauty with intricate zari weaving and delicate patterns.
