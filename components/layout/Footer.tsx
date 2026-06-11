@@ -18,8 +18,8 @@ export default function Footer() {
               src="/images/owner.jpg" 
               alt="Owner" 
               style={{ 
-                width: '160px', 
-                height: '200px', 
+                width: '270px', 
+                height: '210px', 
                 borderRadius: '16px', 
                 objectFit: 'cover',
                 WebkitMaskImage: 'radial-gradient(ellipse at center, black 60%, transparent 100%)',
@@ -32,7 +32,7 @@ export default function Footer() {
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <h4 className="font-serif text-xl font-bold mb-4">ANVI THE SAREE HOUSE</h4>
             <p className="text-sm opacity-90 leading-relaxed">
-              Premium sarees for every celebration. Timeless beauty with intricate zari weaving and delicate patterns.
+              Premium sarees for every celebration.
             </p>
             <div className="flex gap-3 mt-4">
               {[Share2, Globe, Mail, Heart].map((Icon, i) => (
@@ -85,6 +85,7 @@ export default function Footer() {
 
         <div className="border-t border-primary-foreground/20 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-sm opacity-90">
           <p>&copy; {new Date().getFullYear()} ANVI THE SAREE HOUSE. All rights reserved.</p>
+          <p>all over india free shipment free international shipment cost applicable</p>
           <div className="flex gap-4">
             <Link href="#" className="hover:opacity-100">Privacy Policy</Link>
             <Link href="#" className="hover:opacity-100">Terms of Service</Link>
