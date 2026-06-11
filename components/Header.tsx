@@ -50,13 +50,13 @@ export default function Header() {
         FREE SHIPPING ALL OVER INDIA | International Shipping Available
       </div>
 
-      <header className="bg-background border-b border-border sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+      <header className="bg-[#FDF0EE] border-b border-border sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 py-2">
           <div className="flex items-center justify-between gap-4">
             <MobileMenu />
 
-            <Link href="/" className="flex-shrink-0">
-              <Link href="/" className="flex-shrink-0">
+            <Link href="/" className="flex-shrink-0" style={{ marginTop: '0px', marginBottom: '0px', paddingTop: '0px', paddingBottom: '0px' }}>
+              <Link href="/" className="flex-shrink-0" style={{ marginTop: '0px', marginBottom: '0px', paddingTop: '0px', paddingBottom: '0px' }}>
   <Image
     src="/images/logo.png"
     alt="ANVI THE SAREE HOUSE"
@@ -65,7 +65,7 @@ export default function Header() {
     className="object-contain"
   />
 </Link>
-              
+
             </Link>
 
             <nav className="hidden md:flex items-center gap-6 lg:gap-8 flex-1 justify-center text-xs lg:text-sm font-medium">
