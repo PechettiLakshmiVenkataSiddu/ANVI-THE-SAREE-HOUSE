@@ -10,9 +10,26 @@ export default function Footer() {
       <Newsletter variant="footer" />
 
       <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
-          <div style={{ display: 'flex', flexDirection: 'column', minWidth: '200px', maxWidth: '220px' }}>
-            <img src="/images/owner.jpg" alt="Owner" style={{ display: 'block', width: '180px', height: '200px', borderRadius: '16px', objectFit: 'cover', WebkitMaskImage: 'radial-gradient(ellipse at center, black 60%, transparent 100%)', maskImage: 'radial-gradient(ellipse at center, black 60%, transparent 100%)' }} />
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8 mb-8">
+          
+          {/* Column 1 - Photo */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+            <img 
+              src="/images/owner.jpg" 
+              alt="Owner" 
+              style={{ 
+                width: '160px', 
+                height: '200px', 
+                borderRadius: '16px', 
+                objectFit: 'cover',
+                WebkitMaskImage: 'radial-gradient(ellipse at center, black 60%, transparent 100%)',
+                maskImage: 'radial-gradient(ellipse at center, black 60%, transparent 100%)'
+              }} 
+            />
+          </div>
+
+          {/* Column 2 - Brand Info */}
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
             <h4 className="font-serif text-xl font-bold mb-4">ANVI THE SAREE HOUSE</h4>
             <p className="text-sm opacity-90 leading-relaxed">
               Premium sarees for every celebration. Timeless beauty with intricate zari weaving and delicate patterns.
@@ -31,6 +48,7 @@ export default function Footer() {
             </div>
           </div>
 
+          {/* Column 3 - Shop */}
           <div>
             <h4 className="font-bold mb-4 tracking-wide">SHOP</h4>
             <ul className="text-sm space-y-2 opacity-90">
@@ -41,6 +59,7 @@ export default function Footer() {
             </ul>
           </div>
 
+          {/* Column 4 - About */}
           <div>
             <h4 className="font-bold mb-4 tracking-wide">ABOUT</h4>
             <ul className="text-sm space-y-2 opacity-90">
@@ -51,6 +70,7 @@ export default function Footer() {
             </ul>
           </div>
 
+          {/* Column 5 - Contact */}
           <div>
             <h4 className="font-bold mb-4 tracking-wide">CONTACT</h4>
             <div className="text-sm space-y-2 opacity-90">
@@ -60,6 +80,7 @@ export default function Footer() {
               <p>Open until 9:30 PM</p>
             </div>
           </div>
+
         </div>
 
         <div className="border-t border-primary-foreground/20 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-sm opacity-90">
