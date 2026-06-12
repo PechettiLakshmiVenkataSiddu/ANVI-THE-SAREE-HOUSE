@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function POST(request: Request) {
   try {
-    const { orderId, razorpayPaymentId } = await request.json()
+    const { orderId } = await request.json()
 
     if (!orderId) {
       return NextResponse.json({ error: 'orderId is required' }, { status: 400 })
@@ -22,37 +22,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
-    // If razorpayPaymentId not provided, try to get it from the order
-    const paymentId = razorpayPaymentId || order.razorpay_payment_id
-
-    if (!paymentId) {
-      return NextResponse.json({ error: 'razorpayPaymentId is required and not found on order' }, { status: 400 })
-    }
-
-    // Trigger Razorpay refund
-    const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET
-    const razorpayKeyId = process.env.RAZORPAY_KEY_ID
-
-    if (!razorpayKeySecret || !razorpayKeyId) {
-      return NextResponse.json({ error: 'Razorpay credentials not configured' }, { status: 500 })
-    }
-
-    const refundResponse = await fetch('https://api.razorpay.com/v1/payments/' + paymentId + '/refund', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Basic ' + Buffer.from(razorpayKeyId + ':' + razorpayKeySecret).toString('base64'),
-      },
-      body: JSON.stringify({
-        amount: order.total * 100, // Razorpay expects amount in paise
-      }),
-    })
-
-    const refundData = await refundResponse.json()
-
-    if (!refundResponse.ok) {
-      console.error('Razorpay refund failed:', refundData)
-      return NextResponse.json({ error: 'Refund failed: ' + (refundData.error?.description || 'Unknown error') }, { status: 500 })
+    // Check payment method
+    if (order.payment_method === 'Razorpay') {
+      return NextResponse.json({ error: 'Razorpay refund will be added soon' }, { status: 400 })
     }
 
     // Update order status to cancelled
@@ -74,9 +46,9 @@ export async function POST(request: Request) {
       .from('cancellations')
       .insert({
         order_id: orderId,
-        razorpay_payment_id: paymentId,
-        razorpay_refund_id: refundData.id,
-        refund_amount: refundData.amount / 100, // Convert back to rupees
+        razorpay_payment_id: null,
+        razorpay_refund_id: null,
+        refund_amount: 0,
         cancelled_at: new Date().toISOString(),
       })
 
@@ -85,7 +57,7 @@ export async function POST(request: Request) {
       // Don't fail the request if cancellation record insertion fails
     }
 
-    return NextResponse.json({ success: true, refundId: refundData.id })
+    return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Cancel order error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

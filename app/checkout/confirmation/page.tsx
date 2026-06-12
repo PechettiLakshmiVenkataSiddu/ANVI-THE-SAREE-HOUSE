@@ -30,7 +30,6 @@ function ConfirmationContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           orderId: order.id,
-          razorpayPaymentId: order.razorpayPaymentId,
         }),
       })
       const data = await response.json()

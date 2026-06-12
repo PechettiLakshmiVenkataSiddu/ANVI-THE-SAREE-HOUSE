@@ -33,7 +33,6 @@ export default function OrdersPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           orderId: orderToCancel.id,
-          razorpayPaymentId: orderToCancel.razorpayPaymentId,
         }),
       })
       const data = await response.json()
