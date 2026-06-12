@@ -5,8 +5,8 @@ export async function POST(request: Request) {
   try {
     const { orderId, razorpayPaymentId } = await request.json()
 
-    if (!orderId || !razorpayPaymentId) {
-      return NextResponse.json({ error: 'orderId and razorpayPaymentId are required' }, { status: 400 })
+    if (!orderId) {
+      return NextResponse.json({ error: 'orderId is required' }, { status: 400 })
     }
 
     const supabase = await createClient()
@@ -22,6 +22,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
+    // If razorpayPaymentId not provided, try to get it from the order
+    const paymentId = razorpayPaymentId || order.razorpay_payment_id
+
+    if (!paymentId) {
+      return NextResponse.json({ error: 'razorpayPaymentId is required and not found on order' }, { status: 400 })
+    }
+
     // Trigger Razorpay refund
     const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET
     const razorpayKeyId = process.env.RAZORPAY_KEY_ID
@@ -30,7 +37,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Razorpay credentials not configured' }, { status: 500 })
     }
 
-    const refundResponse = await fetch('https://api.razorpay.com/v1/payments/' + razorpayPaymentId + '/refund', {
+    const refundResponse = await fetch('https://api.razorpay.com/v1/payments/' + paymentId + '/refund', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -67,7 +74,7 @@ export async function POST(request: Request) {
       .from('cancellations')
       .insert({
         order_id: orderId,
-        razorpay_payment_id: razorpayPaymentId,
+        razorpay_payment_id: paymentId,
         razorpay_refund_id: refundData.id,
         refund_amount: refundData.amount / 100, // Convert back to rupees
         cancelled_at: new Date().toISOString(),

@@ -137,7 +137,7 @@ function CheckoutPageContent() {
 
               if (verifyData.success) {
                 // Payment verified — save order to Supabase with status 'paid'
-                const newOrder = await createOrder(items, form, paymentMethod, couponCode)
+                const newOrder = await createOrder(items, form, paymentMethod, couponCode, razorpayResponse.razorpay_payment_id)
                 clearCart()
                 router.push(`/checkout/confirmation?orderId=${newOrder.id}`)
               } else {

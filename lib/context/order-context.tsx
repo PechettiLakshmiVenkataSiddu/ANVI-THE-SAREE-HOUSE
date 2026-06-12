@@ -14,7 +14,8 @@ interface OrderContextType {
     items: CartItem[],
     shippingAddress: ShippingAddress,
     paymentMethod: string,
-    couponCode?: string | null
+    couponCode?: string | null,
+    razorpayPaymentId?: string | null
   ) => Promise<Order>
   getOrder: (id: string) => Order | undefined
   getOrderByNumber: (orderNumber: string) => Order | undefined
@@ -61,6 +62,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
           shippingAddress: order.shipping_address,
           paymentMethod: order.payment_method,
           couponCode: order.coupon_code,
+          razorpayPaymentId: order.razorpay_payment_id,
           createdAt: order.created_at,
           estimatedDelivery: order.estimated_delivery,
         }))
@@ -83,7 +85,8 @@ export function OrderProvider({ children }: { children: ReactNode }) {
       items: CartItem[],
       shippingAddress: ShippingAddress,
       paymentMethod: string,
-      couponCode: string | null = null
+      couponCode: string | null = null,
+      razorpayPaymentId: string | null = null
     ): Promise<Order> => {
       if (!user) {
         throw new Error('User must be logged in to create an order')
@@ -111,7 +114,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
         orderStatus = 'pending'
       }
 
-      const orderData = {
+      const orderData: any = {
         user_id: user.id,
         order_number: orderNumber,
         items: items.map((item) => ({
@@ -132,6 +135,10 @@ export function OrderProvider({ children }: { children: ReactNode }) {
         payment_method: paymentMethod,
         coupon_code: couponCode,
         estimated_delivery: estimatedDelivery,
+      }
+
+      if (razorpayPaymentId) {
+        orderData.razorpay_payment_id = razorpayPaymentId
       }
 
       console.log('[OrderContext] Creating order with payload:', {
@@ -170,6 +177,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
         paymentMethod: data.payment_method,
         paymentStatus: data.payment_status,
         couponCode: data.coupon_code,
+        razorpayPaymentId: data.razorpay_payment_id,
         createdAt: data.created_at,
         estimatedDelivery: data.estimated_delivery,
       }
