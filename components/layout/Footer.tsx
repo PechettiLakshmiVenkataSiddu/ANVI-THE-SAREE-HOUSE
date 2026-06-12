@@ -69,7 +69,7 @@ export default function Footer() {
               <p>Email: anvithesareehouse@gmail.com</p>
               <p>Phone: 8639899155</p>
               <p>WhatsApp: 8639899155</p>
-              <p>Open until 9:30 PM</p>
+              <p>Open until 9:00 PM</p>
             </div>
             {/* 4 Icon Links */}
   <div style={{ display: 'flex', gap: '16px', alignItems: 'center', marginTop: '8px' }}>
