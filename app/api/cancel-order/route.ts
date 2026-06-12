@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 
 export async function POST(request: Request) {
   try {
@@ -9,10 +14,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'orderId is required' }, { status: 400 })
     }
 
-    const supabase = await createClient()
-
     // Get order details
-    const { data: order, error: orderError } = await supabase
+    const { data: order, error: orderError } = await supabaseAdmin
       .from('orders')
       .select('*')
       .eq('id', orderId)
@@ -28,7 +31,7 @@ export async function POST(request: Request) {
     }
 
     // Update order status to cancelled
-    const { error: updateError } = await supabase
+    const { error: updateError } = await supabaseAdmin
       .from('orders')
       .update({
         status: 'cancelled',
@@ -42,7 +45,7 @@ export async function POST(request: Request) {
     }
 
     // Insert record into cancellations table
-    const { error: cancellationError } = await supabase
+    const { error: cancellationError } = await supabaseAdmin
       .from('cancellations')
       .insert({
         order_id: orderId,
