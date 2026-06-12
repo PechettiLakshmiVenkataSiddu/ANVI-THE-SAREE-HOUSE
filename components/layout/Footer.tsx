@@ -34,8 +34,8 @@ export default function Footer() {
   <p className="font-serif text-sm opacity-90 mb-2 leading-relaxed">
     ANVI CEO:MEKALA SATISH
   </p>
-  <p className="font-serif text-xs opacity-90 mb-4 leading-relaxed">
-    MANAGING DIRECTORS:<br /><br />KASI ANNAPURNA, YASWANTH SAI, HEMANTH SAI
+  <p className="font-serif text-xs opacity-90 mb-2 leading-relaxed">
+    MANAGING DIRECTORS:<br />KASI ANNAPURNA, YASWANTH SAI, HEMANTH SAI
   </p>
 
 </div>
