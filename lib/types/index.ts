@@ -1,9 +1,10 @@
 export type OrderStatus =
-  | 'placed'
-  | 'confirmed'
+  | 'pending'
+  | 'processing'
   | 'shipped'
   | 'out_for_delivery'
   | 'delivered'
+  | 'cancelled'
 
 export interface ProductVariant {
   color: string
@@ -107,6 +108,7 @@ export interface Order {
   shippingAddress: ShippingAddress
   paymentMethod: string
   couponCode?: string
+  razorpayPaymentId?: string
   createdAt: string
   estimatedDelivery?: string
 }

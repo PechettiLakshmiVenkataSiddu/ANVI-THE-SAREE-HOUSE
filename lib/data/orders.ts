@@ -4,16 +4,16 @@ export function generateOrderNumber(): string {
   return `#ASH${Math.floor(1000000 + Math.random() * 9000000)}`
 }
 
-export function createTrackingSteps(status: OrderStatus = 'placed'): TrackingStep[] {
+export function createTrackingSteps(status: OrderStatus = 'pending'): TrackingStep[] {
   const baseSteps: Omit<TrackingStep, 'completed'>[] = [
-    { status: 'placed', label: 'Order Placed', date: formatDate(new Date()), time: formatTime(new Date()) },
-    { status: 'confirmed', label: 'Confirmed', date: '', time: '' },
+    { status: 'pending', label: 'Order Placed', date: formatDate(new Date()), time: formatTime(new Date()) },
+    { status: 'processing', label: 'Confirmed', date: '', time: '' },
     { status: 'shipped', label: 'Shipped', date: '', time: '' },
     { status: 'out_for_delivery', label: 'Out for Delivery', date: '', time: '' },
     { status: 'delivered', label: 'Delivered', date: '', time: '' },
   ]
 
-  const statusOrder: OrderStatus[] = ['placed', 'confirmed', 'shipped', 'out_for_delivery', 'delivered']
+  const statusOrder: OrderStatus[] = ['pending', 'processing', 'shipped', 'out_for_delivery', 'delivered']
   const currentIndex = statusOrder.indexOf(status)
 
   return baseSteps.map((step, index) => ({
@@ -54,8 +54,8 @@ export function createDemoOrder(): Order {
     total: 5598,
     status: 'delivered',
     trackingSteps: [
-      { status: 'placed', label: 'Order Placed', date: '16 May 2024', time: '10:30 AM', completed: true },
-      { status: 'confirmed', label: 'Confirmed', date: '16 May 2024', time: '11:00 AM', completed: true },
+      { status: 'pending', label: 'Order Placed', date: '16 May 2024', time: '10:30 AM', completed: true },
+      { status: 'processing', label: 'Confirmed', date: '16 May 2024', time: '11:00 AM', completed: true },
       { status: 'shipped', label: 'Shipped', date: '17 May 2024', time: '09:20 AM', completed: true },
       { status: 'out_for_delivery', label: 'Out for Delivery', date: '18 May 2024', time: '08:30 AM', completed: true },
       { status: 'delivered', label: 'Delivered', date: '18 May 2024', time: '02:15 PM', completed: true },
@@ -99,11 +99,12 @@ function addHours(date: Date, hours: number): Date {
 
 export function getStatusColor(status: OrderStatus): string {
   const colors: Record<OrderStatus, string> = {
-    placed: 'text-blue-600',
-    confirmed: 'text-indigo-600',
+    pending: 'text-blue-600',
+    processing: 'text-indigo-600',
     shipped: 'text-purple-600',
     out_for_delivery: 'text-orange-600',
     delivered: 'text-green-600',
+    cancelled: 'text-red-600',
   }
   return colors[status]
 }

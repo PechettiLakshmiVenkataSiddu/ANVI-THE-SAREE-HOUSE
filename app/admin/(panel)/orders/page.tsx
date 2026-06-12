@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Eye } from 'lucide-react'
+import { Eye, X } from 'lucide-react'
 import AdminHeader from '@/components/admin/AdminHeader'
 import LoadingSpinner from '@/components/admin/LoadingSpinner'
 import { getOrders, getOrder, updateOrderStatus } from '@/lib/admin/queries'
@@ -14,6 +14,9 @@ export default function AdminOrdersPage() {
   const [error, setError] = useState('')
   const [selected, setSelected] = useState<DbOrder | null>(null)
   const [updating, setUpdating] = useState(false)
+  const [cancelModalOpen, setCancelModalOpen] = useState(false)
+  const [orderToCancel, setOrderToCancel] = useState<DbOrder | null>(null)
+  const [cancelling, setCancelling] = useState(false)
 
   useEffect(() => {
     getOrders()
@@ -43,6 +46,44 @@ export default function AdminOrdersPage() {
 
   const statusLabel = (s: string) => ADMIN_ORDER_STATUSES.find((x) => x.value === s)?.label ?? s
 
+  const handleCancelClick = (e: React.MouseEvent, order: DbOrder) => {
+    e.stopPropagation()
+    setOrderToCancel(order)
+    setCancelModalOpen(true)
+  }
+
+  const handleCancelConfirm = async () => {
+    if (!orderToCancel) return
+    setCancelling(true)
+    try {
+      const response = await fetch('/api/cancel-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: orderToCancel.id,
+          razorpayPaymentId: orderToCancel.razorpay_payment_id,
+        }),
+      })
+      const data = await response.json()
+      if (data.success) {
+        setCancelModalOpen(false)
+        setOrderToCancel(null)
+        // Refresh orders
+        const updatedOrders = await getOrders()
+        setOrders(updatedOrders)
+        if (selected?.id === orderToCancel.id) {
+          setSelected(null)
+        }
+      } else {
+        setError('Failed to cancel order: ' + data.error)
+      }
+    } catch (error) {
+      setError('Failed to cancel order')
+    } finally {
+      setCancelling(false)
+    }
+  }
+
   if (loading) return <LoadingSpinner />
 
   return (
@@ -69,7 +110,15 @@ export default function AdminOrdersPage() {
                   <td className="p-4 text-muted-foreground">{order.customer_name ?? order.customer_email ?? '—'}</td>
                   <td className="p-4"><span className="px-2 py-1 bg-secondary text-xs rounded-full">{statusLabel(order.status)}</span></td>
                   <td className="p-4 text-right font-semibold">₹{Number(order.total).toLocaleString()}</td>
-                  <td className="p-4"><Eye size={16} className="text-muted-foreground" /></td>
+                  <td className="p-4 flex items-center gap-2">
+                    <button
+                      onClick={(e) => handleCancelClick(e, order)}
+                      className="px-2 py-1 text-xs font-semibold text-destructive border border-destructive rounded hover:bg-destructive/10 transition"
+                    >
+                      Cancel
+                    </button>
+                    <Eye size={16} className="text-muted-foreground" />
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -120,6 +169,40 @@ export default function AdminOrdersPage() {
           )}
         </div>
       </div>
+
+      {cancelModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-card border border-border rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-lg">Cancel Order</h3>
+              <button
+                onClick={() => setCancelModalOpen(false)}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <p className="text-sm text-muted-foreground mb-6">
+              Are you sure you want to cancel order {orderToCancel?.order_number}? This will trigger a full refund to the customer's original payment method.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setCancelModalOpen(false)}
+                className="flex-1 px-4 py-2 border border-border rounded-md text-sm font-semibold hover:bg-secondary/50 transition"
+              >
+                No, Keep Order
+              </button>
+              <button
+                onClick={handleCancelConfirm}
+                disabled={cancelling}
+                className="flex-1 px-4 py-2 bg-destructive text-destructive-foreground rounded-md text-sm font-semibold disabled:opacity-60 transition"
+              >
+                {cancelling ? 'Cancelling...' : 'Yes, Cancel Order'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

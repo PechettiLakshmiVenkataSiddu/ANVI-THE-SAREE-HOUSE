@@ -67,6 +67,8 @@ export async function POST(request: NextRequest) {
     cloudinaryForm.append('file', file)
     cloudinaryForm.append('upload_preset', uploadPreset)
     cloudinaryForm.append('folder', 'saree-elegance')
+    cloudinaryForm.append('quality', 'auto')
+    cloudinaryForm.append('fetch_format', 'auto')
 
     const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
       method: 'POST',
