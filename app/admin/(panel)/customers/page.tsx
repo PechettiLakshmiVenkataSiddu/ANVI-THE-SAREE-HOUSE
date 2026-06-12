@@ -5,6 +5,7 @@ import AdminHeader from '@/components/admin/AdminHeader'
 import LoadingSpinner from '@/components/admin/LoadingSpinner'
 import { getCustomers, getCustomerOrders } from '@/lib/admin/queries'
 import type { DbProfile, DbOrder } from '@/lib/types/admin'
+import { supabase } from '@/lib/supabase'
 
 export default function AdminCustomersPage() {
   const [customers, setCustomers] = useState<DbProfile[]>([])
@@ -12,10 +13,35 @@ export default function AdminCustomersPage() {
   const [orders, setOrders] = useState<DbOrder[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [orderCounts, setOrderCounts] = useState<Record<string, number>>({})
 
   useEffect(() => {
     getCustomers()
-      .then(setCustomers)
+      .then(async (customersData) => {
+        setCustomers(customersData)
+        // Fetch all orders and count per customer
+        const { data: ordersData } = await supabase
+          .from('orders')
+          .select('id, user_id, shipping_address')
+        
+        const counts: Record<string, number> = {}
+        customersData.forEach((customer) => {
+          const customerOrders = ordersData?.filter((order: any) => {
+            // Primary match: order.user_id === profile.id
+            if (order.user_id === customer.id) return true
+            // Fallback match: shipping_address.email === profile.email
+            if (order.shipping_address) {
+              const shippingAddress = typeof order.shipping_address === 'string'
+                ? JSON.parse(order.shipping_address)
+                : order.shipping_address
+              if (shippingAddress.email === customer.email) return true
+            }
+            return false
+          }) || []
+          counts[customer.id] = customerOrders.length
+        })
+        setOrderCounts(counts)
+      })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false))
   }, [])
@@ -54,7 +80,14 @@ export default function AdminCustomersPage() {
                   onClick={() => selectCustomer(c)}
                   className={`border-b border-border last:border-0 hover:bg-secondary/10 cursor-pointer ${selected?.id === c.id ? 'bg-secondary/30' : ''}`}
                 >
-                  <td className="p-4 font-medium">{c.first_name} {c.last_name}</td>
+                  <td className="p-4 font-medium">
+                    {c.first_name} {c.last_name}
+                    {orderCounts[c.id] > 0 && (
+                      <span className="ml-2 px-2 py-0.5 bg-primary text-primary-foreground text-xs rounded-full">
+                        {orderCounts[c.id]}
+                      </span>
+                    )}
+                  </td>
                   <td className="p-4 text-muted-foreground">{c.email}</td>
                   <td className="p-4 text-muted-foreground">{new Date(c.created_at).toLocaleDateString()}</td>
                 </tr>
