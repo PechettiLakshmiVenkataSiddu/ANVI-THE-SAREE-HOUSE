@@ -66,9 +66,9 @@ export default function Footer() {
           <div>
             <h4 className="font-bold mb-4 tracking-wide">CONTACT</h4>
             <div className="text-sm space-y-2 opacity-90">
-              <p>Email: info@anvithesareehouse.com</p>
-              <p>Phone: 08639899155</p>
-              <p>WhatsApp: 08639899155</p>
+              <p>Email: anvithesareehouse@gmail.com</p>
+              <p>Phone: 8639899155</p>
+              <p>WhatsApp: 8639899155</p>
               <p>Open until 9:30 PM</p>
             </div>
             {/* 4 Icon Links */}

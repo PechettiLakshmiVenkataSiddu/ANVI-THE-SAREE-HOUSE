@@ -40,9 +40,9 @@ export default function Testimonials() {
               </div>
               <p className="text-sm text-foreground leading-relaxed mb-6">&ldquo;{item.text}&rdquo;</p>
               <div className="flex items-center gap-3">
-                <div className="relative w-10 h-10 rounded-full overflow-hidden">
-                  <Image src={item.image} alt={item.name} fill className="object-cover" />
-                </div>
+                <div className="w-10 h-10 rounded-full bg-pink-200 flex items-center justify-center font-semibold text-black">
+  {item.name.charAt(0)}
+</div>
                 <div>
                   <p className="font-semibold text-sm">{item.name}</p>
                   <p className="text-xs text-muted-foreground">{item.location}</p>
