@@ -81,6 +81,7 @@ export interface DbOrder {
   status: AdminOrderStatus
   shipping_address: Record<string, string> | null
   payment_method: string | null
+  payment_status: string | null
   coupon_code: string | null
   razorpay_payment_id: string | null
   created_at: string

@@ -46,6 +46,18 @@ export default function AdminOrdersPage() {
 
   const statusLabel = (s: string) => ADMIN_ORDER_STATUSES.find((x) => x.value === s)?.label ?? s
 
+  const getPaymentStatusBadge = (status: string | null) => {
+    if (!status) return null
+    const badgeStyles: Record<string, string> = {
+      paid: 'bg-green-100 text-green-700',
+      pending: 'bg-yellow-100 text-yellow-700',
+      COD: 'bg-orange-100 text-orange-700',
+      failed: 'bg-red-100 text-red-700',
+    }
+    const style = badgeStyles[status] || 'bg-secondary text-muted-foreground'
+    return <span className={`px-2 py-1 text-xs rounded-full ${style}`}>{status}</span>
+  }
+
   const handleCancelClick = (e: React.MouseEvent, order: DbOrder) => {
     e.stopPropagation()
     setOrderToCancel(order)
@@ -98,6 +110,7 @@ export default function AdminOrdersPage() {
                 <th className="text-left p-4">Order</th>
                 <th className="text-left p-4">Customer</th>
                 <th className="text-left p-4">Status</th>
+                <th className="text-left p-4">Payment</th>
                 <th className="text-right p-4">Total</th>
                 <th className="p-4"></th>
               </tr>
@@ -108,6 +121,12 @@ export default function AdminOrdersPage() {
                   <td className="p-4 font-medium">{order.order_number}</td>
                   <td className="p-4 text-muted-foreground">{order.customer_name ?? order.customer_email ?? '—'}</td>
                   <td className="p-4"><span className="px-2 py-1 bg-secondary text-xs rounded-full">{statusLabel(order.status)}</span></td>
+                  <td className="p-4">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs text-muted-foreground">{order.payment_method || '—'}</span>
+                      {getPaymentStatusBadge(order.payment_status)}
+                    </div>
+                  </td>
                   <td className="p-4 text-right font-semibold">₹{Number(order.total).toLocaleString()}</td>
                   <td className="p-4 flex items-center gap-2">
                     <button
@@ -130,6 +149,14 @@ export default function AdminOrdersPage() {
             <div className="space-y-4">
               <h3 className="font-bold">{selected.order_number}</h3>
               <p className="text-sm text-muted-foreground">{new Date(selected.created_at).toLocaleString()}</p>
+              <div>
+                <p className="text-xs font-semibold mb-1">Payment Method</p>
+                <p className="text-sm">{selected.payment_method || '—'}</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold mb-1">Payment Status</p>
+                {getPaymentStatusBadge(selected.payment_status)}
+              </div>
               <div>
                 <p className="text-xs font-semibold mb-1">Update Status</p>
                 <select
