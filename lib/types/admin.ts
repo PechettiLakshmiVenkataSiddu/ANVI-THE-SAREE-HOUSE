@@ -26,10 +26,9 @@ export interface DbCustomer {
   email: string
   full_name: string | null
   phone: string | null
-  joined_at: string
+  created_at: string
   order_count: number
 }
-
 export interface DbCollection {
   id: string
   slug: string

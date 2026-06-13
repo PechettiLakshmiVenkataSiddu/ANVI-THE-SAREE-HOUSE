@@ -184,7 +184,7 @@ export async function getCustomers(): Promise<DbCustomer[]> {
   const { data, error } = await supabase
     .from('customers')
     .select('*')
-    .order('joined_at', { ascending: false })
+    .order('created_at', { ascending: false })
   if (error) throw new Error(formatDbError(error))
   return (data ?? []) as DbCustomer[]
 }

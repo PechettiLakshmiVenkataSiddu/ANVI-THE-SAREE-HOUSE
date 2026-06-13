@@ -60,7 +60,7 @@ export default function AdminCustomersPage() {
                 >
                   <td className="p-4 font-medium">{c.full_name || '—'}</td>
                   <td className="p-4 text-muted-foreground">{c.email}</td>
-                  <td className="p-4 text-muted-foreground">{new Date(c.joined_at).toLocaleDateString()}</td>
+                  <td className="p-4 text-muted-foreground">{new Date(c.created_at).toLocaleDateString()}</td>
                   <td className="p-4 text-muted-foreground">{c.order_count}</td>
                 </tr>
               ))}
@@ -76,7 +76,7 @@ export default function AdminCustomersPage() {
               <div className="text-sm space-y-2">
                 <p><span className="text-muted-foreground">Email:</span> {selected.email}</p>
                 {selected.phone && <p><span className="text-muted-foreground">Phone:</span> {selected.phone}</p>}
-                <p><span className="text-muted-foreground">Joined:</span> {new Date(selected.joined_at).toLocaleDateString()}</p>
+                <p><span className="text-muted-foreground">Joined:</span> {new Date(selected.created_at).toLocaleDateString()}</p>
                 <p><span className="text-muted-foreground">Orders:</span> {selected.order_count}</p>
               </div>
               <div>

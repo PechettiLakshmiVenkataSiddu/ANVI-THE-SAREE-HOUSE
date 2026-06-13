@@ -10,6 +10,7 @@ import {
   Layers,
   LogOut,
   ExternalLink,
+  Tag,
 } from 'lucide-react'
 import { useAuth } from '@/components/providers/AuthProvider'
 import { useRouter } from 'next/navigation'
@@ -20,6 +21,7 @@ const navItems = [
   { href: '/admin/products', label: 'Products', icon: Package },
   { href: '/admin/orders', label: 'Orders', icon: ShoppingBag },
   { href: '/admin/customers', label: 'Customers', icon: Users },
+  { href: '/admin/coupons', label: 'Coupons', icon: Tag },
   { href: '/admin/collections', label: 'Collections', icon: Layers },
 ]
 
