@@ -5,6 +5,7 @@ export type AdminOrderStatus =
   | 'shipped'
   | 'out_for_delivery'
   | 'delivered'
+  | 'cancelled'
 
 export type ProfileRole = 'admin' | 'customer'
 
@@ -29,6 +30,7 @@ export interface DbCustomer {
   created_at: string
   order_count: number
 }
+
 export interface DbCollection {
   id: string
   slug: string
@@ -113,24 +115,25 @@ export const ADMIN_ORDER_STATUSES: { value: AdminOrderStatus; label: string }[] 
   { value: 'shipped', label: 'Shipped' },
   { value: 'out_for_delivery', label: 'Out for Delivery' },
   { value: 'delivered', label: 'Delivered' },
+  { value: 'cancelled', label: 'Cancelled' },
 ]
 
-// Map UI status values to valid database status values
-export const UI_STATUS_TO_DB_STATUS: Record<AdminOrderStatus, string> = {
+export const UI_STATUS_TO_DB_STATUS: Record<string, string> = {
   placed: 'pending',
   confirmed: 'processing',
-  packed: 'processing',
+  packed: 'packed',
   shipped: 'shipped',
   out_for_delivery: 'out_for_delivery',
   delivered: 'delivered',
+  cancelled: 'cancelled',
 }
 
-// Map database status values back to UI status values for display
 export const DB_STATUS_TO_UI_STATUS: Record<string, AdminOrderStatus> = {
   pending: 'placed',
   processing: 'confirmed',
+  packed: 'packed',
   shipped: 'shipped',
   out_for_delivery: 'out_for_delivery',
   delivered: 'delivered',
-  cancelled: 'delivered',
+  cancelled: 'cancelled',
 }

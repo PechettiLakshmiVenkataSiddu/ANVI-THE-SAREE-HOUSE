@@ -30,8 +30,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   const [ordersRes, productsRes, customersRes, recentRes] = await Promise.all([
     supabase.from('orders').select('total', { count: 'exact' }),
     supabase.from('products').select('id', { count: 'exact', head: true }),
-    supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'customer'),
-    supabase.from('orders').select('*').order('created_at', { ascending: false }).limit(5),
+supabase.from('customers').select('id', { count: 'exact', head: true }),    supabase.from('orders').select('*').order('created_at', { ascending: false }).limit(5),
   ])
 
   if (ordersRes.error) console.error('[admin/queries] orders stats:', ordersRes.error.message)
@@ -182,7 +181,7 @@ export async function updateOrderStatus(id: string, status: AdminOrderStatus) {
 export async function getCustomers(): Promise<DbCustomer[]> {
   await requireAdminSession()
   const { data, error } = await supabase
-    .from('customers')
+    .from('customers')        // ← must be 'customers' not 'profiles'
     .select('*')
     .order('created_at', { ascending: false })
   if (error) throw new Error(formatDbError(error))
