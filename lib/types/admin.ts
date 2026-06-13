@@ -15,6 +15,7 @@ export interface DbProfile {
   last_name: string | null
   phone: string | null
   role: ProfileRole
+  profile_completed: boolean
   created_at: string
   updated_at: string
 }

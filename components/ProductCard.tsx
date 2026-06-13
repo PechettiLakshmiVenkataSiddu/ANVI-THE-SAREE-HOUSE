@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Heart, Star, ShoppingCart, Eye } from 'lucide-react'
 import Image from 'next/image'
@@ -7,6 +8,7 @@ import Link from 'next/link'
 import { getDiscountPercent } from '@/lib/data/products'
 import { useWishlist } from '@/lib/context/wishlist-context'
 import { useCart } from '@/lib/context/cart-context'
+import { supabase } from '@/lib/supabase'
 
 interface ProductCardProps {
   id: string
@@ -16,8 +18,8 @@ interface ProductCardProps {
   price: number
   originalPrice?: number
   original_price?: number
-  rating: number
-  reviews: number
+  rating?: number
+  reviews?: number
   colors?: any[]
   sizes?: any[]
   description?: string
@@ -32,8 +34,8 @@ export default function ProductCard({
   price,
   originalPrice,
   original_price,
-  rating,
-  reviews,
+  rating: initialRating = 0,
+  reviews: initialReviews = 0,
   colors = [],
   sizes = [],
   description = '',
@@ -41,6 +43,32 @@ export default function ProductCard({
 }: ProductCardProps) {
   const { toggleItem, isInWishlist } = useWishlist()
   const { addItem } = useCart()
+  const [rating, setRating] = useState(initialRating)
+  const [reviews, setReviews] = useState(initialReviews)
+
+  useEffect(() => {
+    async function fetchReviews() {
+      const { data, error } = await supabase
+        .from('reviews')
+        .select('rating')
+        .eq('product_id', id)
+
+      if (error) {
+        console.error('Error fetching reviews:', error)
+        return
+      }
+
+      const reviewData = data ?? []
+      const averageRating = reviewData.length > 0
+        ? reviewData.reduce((sum, r) => sum + r.rating, 0) / reviewData.length
+        : initialRating
+
+      setRating(averageRating)
+      setReviews(reviewData.length)
+    }
+
+    fetchReviews()
+  }, [id, initialRating])
 
   // Support both static (originalPrice) and Supabase (original_price) formats
   const finalOriginalPrice = originalPrice ?? original_price
