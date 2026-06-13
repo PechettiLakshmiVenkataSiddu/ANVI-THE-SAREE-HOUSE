@@ -8,6 +8,7 @@ import {
 import type {
   DashboardStats,
   DbCollection,
+  DbCustomer,
   DbOrder,
   DbProduct,
   DbProfile,
@@ -178,15 +179,14 @@ export async function updateOrderStatus(id: string, status: AdminOrderStatus) {
   return transformedOrder as DbOrder
 }
 
-export async function getCustomers(): Promise<DbProfile[]> {
+export async function getCustomers(): Promise<DbCustomer[]> {
   await requireAdminSession()
   const { data, error } = await supabase
-    .from('profiles')
+    .from('customers')
     .select('*')
-    .eq('role', 'customer')
-    .order('created_at', { ascending: false })
+    .order('joined_at', { ascending: false })
   if (error) throw new Error(formatDbError(error))
-  return (data ?? []) as DbProfile[]
+  return (data ?? []) as DbCustomer[]
 }
 
 export async function getCustomer(id: string): Promise<DbProfile | null> {

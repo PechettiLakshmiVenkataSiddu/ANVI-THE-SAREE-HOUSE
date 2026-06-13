@@ -370,6 +370,27 @@ export default function ProductPage({ params }: ProductPageProps) {
               </div>
             )}
 
+            {/* Blouse Options - Hidden on mobile */}
+            {blouseOptions.length > 0 && (
+              <div className="hidden md:block">
+                <label className="text-sm font-semibold mb-3 block">BLOUSE OPTION</label>
+                <div className="flex gap-2 flex-wrap mb-6">
+                  {blouseOptions.map((option: string) => (
+                    <button
+                      key={option}
+                      onClick={() => setSelectedBlouse(option)}
+                      className={`px-4 py-2 text-xs border rounded-md transition ${selectedBlouse === option
+                          ? 'border-primary bg-primary text-primary-foreground'
+                          : 'border-border hover:border-primary'
+                        }`}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
 
             {/* Quantity */}
             <div className="flex items-center gap-4">

@@ -92,7 +92,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
         throw new Error('User must be logged in to create an order')
       }
 
-      const { subtotal, shipping, discount, total } = calculateTotal(items, couponCode)
+      const { subtotal, shipping, discount, total } = await calculateTotal(items, couponCode)
       const orderNumber = generateOrderNumber()
       const estimatedDelivery = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN', {
         day: 'numeric',

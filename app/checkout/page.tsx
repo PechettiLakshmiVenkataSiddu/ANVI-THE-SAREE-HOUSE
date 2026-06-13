@@ -26,7 +26,11 @@ function CheckoutPageContent() {
   const router = useRouter()
   const { items, couponCode, clearCart } = useCart()
   const { createOrder } = useOrders()
-  const { subtotal, shipping, discount, total } = calculateTotal(items, couponCode)
+  const [totals, setTotals] = useState({ subtotal: 0, shipping: 0, discount: 0, total: 0 })
+
+  useEffect(() => {
+    calculateTotal(items, couponCode).then(setTotals)
+  }, [items, couponCode])
 
   const [form, setForm] = useState<ShippingAddress>({
     firstName: '',
@@ -95,7 +99,7 @@ function CheckoutPageContent() {
         const response = await fetch('/api/payment/create-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount: total }),
+          body: JSON.stringify({ amount: totals.total }),
         })
 
         const { order } = await response.json()
@@ -295,21 +299,21 @@ function CheckoutPageContent() {
                 <div className="space-y-2 text-sm border-t border-border pt-4">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span>₹{subtotal.toLocaleString()}</span>
+                    <span>₹{totals.subtotal.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Shipping</span>
-                    <span>{shipping === 0 ? 'Free' : `₹${shipping}`}</span>
+                    <span>{totals.shipping === 0 ? 'Free' : `₹${totals.shipping}`}</span>
                   </div>
-                  {discount > 0 && (
+                  {totals.discount > 0 && (
                     <div className="flex justify-between text-green-600">
                       <span>Discount</span>
-                      <span>-₹{discount.toLocaleString()}</span>
+                      <span>-₹{totals.discount.toLocaleString()}</span>
                     </div>
                   )}
                   <div className="flex justify-between font-bold text-lg pt-2 border-t border-border">
                     <span>Total</span>
-                    <span>₹{total.toLocaleString()}</span>
+                    <span>₹{totals.total.toLocaleString()}</span>
                   </div>
                 </div>
                 <button

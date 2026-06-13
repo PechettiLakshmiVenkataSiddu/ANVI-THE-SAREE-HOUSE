@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Minus, Plus, ShoppingBag } from 'lucide-react'
 import Image from 'next/image'
@@ -14,7 +15,11 @@ interface CartDrawerProps {
 
 export default function CartDrawer({ open, onClose }: CartDrawerProps) {
   const { items, updateQuantity, removeItem, couponCode } = useCart()
-  const { subtotal, shipping, discount, total } = calculateTotal(items, couponCode)
+  const [totals, setTotals] = useState({ subtotal: 0, shipping: 0, discount: 0, total: 0 })
+
+  useEffect(() => {
+    calculateTotal(items, couponCode).then(setTotals)
+  }, [items, couponCode])
 
   return (
     <AnimatePresence>
@@ -108,23 +113,23 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                 <div className="space-y-1 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span>₹{subtotal.toLocaleString()}</span>
+                    <span>₹{totals.subtotal.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Shipping</span>
-                    <span className={shipping === 0 ? 'text-green-600' : ''}>
-                      {shipping === 0 ? 'Free' : `₹${shipping}`}
+                    <span className={totals.shipping === 0 ? 'text-green-600' : ''}>
+                      {totals.shipping === 0 ? 'Free' : `₹${totals.shipping}`}
                     </span>
                   </div>
-                  {discount > 0 && (
+                  {totals.discount > 0 && (
                     <div className="flex justify-between text-green-600">
                       <span>Discount</span>
-                      <span>-₹{discount.toLocaleString()}</span>
+                      <span>-₹{totals.discount.toLocaleString()}</span>
                     </div>
                   )}
                   <div className="flex justify-between font-bold text-base pt-2 border-t border-border">
                     <span>Total</span>
-                    <span>₹{total.toLocaleString()}</span>
+                    <span>₹{totals.total.toLocaleString()}</span>
                   </div>
                 </div>
                 <Link

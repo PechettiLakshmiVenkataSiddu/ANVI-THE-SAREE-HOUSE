@@ -3,28 +3,34 @@
 import { Minus, Plus, Trash2, Tag } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/layout/Footer'
 import Breadcrumbs from '@/components/layout/Breadcrumbs'
 import { useCart } from '@/lib/context/cart-context'
 import { calculateTotal, validateCoupon } from '@/lib/utils/cart'
-import { COUPONS } from '@/lib/constants'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, couponCode, applyCoupon, removeCoupon } = useCart()
   const [couponInput, setCouponInput] = useState('')
   const [couponMessage, setCouponMessage] = useState('')
-  const { subtotal, shipping, discount, total } = calculateTotal(items, couponCode)
+  const [totals, setTotals] = useState({ subtotal: 0, shipping: 0, discount: 0, total: 0 })
+  const [loadingCoupon, setLoadingCoupon] = useState(false)
 
-  const handleApplyCoupon = () => {
-    const result = validateCoupon(couponInput, subtotal)
+  useEffect(() => {
+    calculateTotal(items, couponCode).then(setTotals)
+  }, [items, couponCode])
+
+  const handleApplyCoupon = async () => {
+    setLoadingCoupon(true)
+    const result = await validateCoupon(couponInput, totals.subtotal)
     setCouponMessage(result.message)
     if (result.valid) {
       applyCoupon(couponInput)
       setCouponInput('')
     }
+    setLoadingCoupon(false)
   }
 
   return (
@@ -132,9 +138,10 @@ export default function CartPage() {
                     />
                     <button
                       onClick={handleApplyCoupon}
-                      className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-semibold"
+                      disabled={loadingCoupon}
+                      className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-semibold disabled:opacity-60"
                     >
-                      Apply
+                      {loadingCoupon ? 'Applying...' : 'Apply'}
                     </button>
                   </div>
                   {couponMessage && (
@@ -148,31 +155,28 @@ export default function CartPage() {
                       </button>
                     </div>
                   )}
-                  <p className="text-[10px] text-muted-foreground mt-2">
-                    Try: {COUPONS.map((c) => c.code).join(', ')}
-                  </p>
                 </div>
 
                 <div className="space-y-2 text-sm border-t border-border pt-4">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span>₹{subtotal.toLocaleString()}</span>
+                    <span>₹{totals.subtotal.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Shipping</span>
-                    <span className={shipping === 0 ? 'text-green-600 font-semibold' : ''}>
-                      {shipping === 0 ? 'Free' : `₹${shipping}`}
+                    <span className={totals.shipping === 0 ? 'text-green-600 font-semibold' : ''}>
+                      {totals.shipping === 0 ? 'Free' : `₹${totals.shipping}`}
                     </span>
                   </div>
-                  {discount > 0 && (
+                  {totals.discount > 0 && (
                     <div className="flex justify-between text-green-600">
                       <span>Discount</span>
-                      <span>-₹{discount.toLocaleString()}</span>
+                      <span>-₹{totals.discount.toLocaleString()}</span>
                     </div>
                   )}
                   <div className="flex justify-between font-bold text-lg pt-3 border-t border-border">
                     <span>Total</span>
-                    <span>₹{total.toLocaleString()}</span>
+                    <span>₹{totals.total.toLocaleString()}</span>
                   </div>
                 </div>
 

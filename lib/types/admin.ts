@@ -20,6 +20,16 @@ export interface DbProfile {
   updated_at: string
 }
 
+export interface DbCustomer {
+  id: string
+  user_id: string | null
+  email: string
+  full_name: string | null
+  phone: string | null
+  joined_at: string
+  order_count: number
+}
+
 export interface DbCollection {
   id: string
   slug: string
