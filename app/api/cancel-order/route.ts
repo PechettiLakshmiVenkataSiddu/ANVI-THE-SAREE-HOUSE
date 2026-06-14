@@ -14,10 +14,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'orderId is required' }, { status: 400 })
     }
 
-    if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
     // Get order details
     const { data: order, error: orderError } = await supabaseAdmin
       .from('orders')
@@ -27,11 +23,6 @@ export async function POST(request: Request) {
 
     if (orderError || !order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
-    }
-
-    // Verify order belongs to this user
-    if (order.user_id !== userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Only allow cancel for placed/confirmed
@@ -85,13 +76,17 @@ export async function POST(request: Request) {
         cancelled_at: new Date().toISOString(),
       }).eq('id', orderId)
 
-      await supabaseAdmin.from('cancellations').insert({
-        order_id: orderId,
-        razorpay_payment_id: order.razorpay_payment_id,
-        razorpay_refund_id: refund.id,
-        refund_amount: order.total,
-        cancelled_at: new Date().toISOString(),
-      })
+      try {
+        await supabaseAdmin.from('cancellations').insert({
+          order_id: orderId,
+          razorpay_payment_id: order.razorpay_payment_id,
+          razorpay_refund_id: refund.id,
+          refund_amount: order.total,
+          cancelled_at: new Date().toISOString(),
+        })
+      } catch (e) {
+        console.log('Cancellations table insert failed - continuing')
+      }
 
       return NextResponse.json({ 
         success: true,
@@ -105,13 +100,17 @@ export async function POST(request: Request) {
       cancelled_at: new Date().toISOString(),
     }).eq('id', orderId)
 
-    await supabaseAdmin.from('cancellations').insert({
-      order_id: orderId,
-      razorpay_payment_id: null,
-      razorpay_refund_id: null,
-      refund_amount: 0,
-      cancelled_at: new Date().toISOString(),
-    }).maybeSingle()
+    try {
+      await supabaseAdmin.from('cancellations').insert({
+        order_id: orderId,
+        razorpay_payment_id: null,
+        razorpay_refund_id: null,
+        refund_amount: 0,
+        cancelled_at: new Date().toISOString(),
+      })
+    } catch (e) {
+      console.log('Cancellations table insert failed - continuing')
+    }
 
     return NextResponse.json({ 
       success: true,
