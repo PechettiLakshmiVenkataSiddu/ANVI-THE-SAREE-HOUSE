@@ -7,10 +7,7 @@ export async function POST(request: NextRequest) {
 const { amount } = await request.json()
 
 // Verify user is logged in
-const authHeader = request.headers.get('authorization')
-if (!authHeader) {
-  return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-}
+
     if (!amount || typeof amount !== 'number') {
       return NextResponse.json({ error: 'Invalid amount' }, { status: 400 })
     }

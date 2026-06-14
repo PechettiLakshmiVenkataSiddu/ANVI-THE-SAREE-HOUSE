@@ -1,5 +1,6 @@
 'use client'
 
+import {supabase} from '@/lib/supabase'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Header from '@/components/Header'
@@ -96,11 +97,16 @@ function CheckoutPageContent() {
     try {
       if (paymentMethod === 'Razorpay') {
         // Step 1: Create Razorpay order on server
-        const response = await fetch('/api/payment/create-order', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount: totals.total }),
-        })
+        const { data: { session } } = await supabase.auth.getSession()
+
+const response = await fetch('/api/payment/create-order', {
+  method: 'POST',
+  headers: { 
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${session?.access_token}`
+  },
+  body: JSON.stringify({ amount: totals.total }),
+})
 
         const { order } = await response.json()
 
