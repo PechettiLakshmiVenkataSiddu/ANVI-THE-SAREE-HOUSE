@@ -24,10 +24,26 @@ export async function POST(request: NextRequest) {
     )
 
     if (!isValid) {
-      return NextResponse.json({ error: 'Invalid payment signature' }, { status: 400 })
-    }
+  return NextResponse.json({ error: 'Invalid payment signature' }, { status: 400 })
+}
 
-    return NextResponse.json({ success: true })
+// Update order payment status in Supabase
+const { createClient } = await import('@supabase/supabase-js')
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+await supabase
+  .from('orders')
+  .update({
+    payment_status: 'paid',
+    razorpay_payment_id: razorpay_payment_id,
+    razorpay_order_id: razorpay_order_id,
+  })
+  .eq('razorpay_order_id', razorpay_order_id)
+
+return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error verifying Razorpay payment:', error)
     return NextResponse.json({ error: 'Payment verification failed' }, { status: 500 })
