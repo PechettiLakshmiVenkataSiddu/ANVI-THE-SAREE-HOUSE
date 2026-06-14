@@ -50,22 +50,23 @@ export function OrderProvider({ children }: { children: ReactNode }) {
       } else {
         // Transform Supabase data to Order type
         const transformedOrders = (data || []).map((order: any) => ({
-          id: order.id,
-          orderNumber: order.order_number,
-          items: order.items,
-          subtotal: order.subtotal,
-          shipping: order.shipping,
-          discount: order.discount,
-          total: order.total,
-          status: order.status,
-          trackingSteps: createTrackingSteps(order.status),
-          shippingAddress: order.shipping_address,
-          paymentMethod: order.payment_method,
-          couponCode: order.coupon_code,
-          razorpayPaymentId: order.razorpay_payment_id,
-          createdAt: order.created_at,
-          estimatedDelivery: order.estimated_delivery,
-        }))
+  id: order.id,
+  userId: order.user_id,        // ← ADD THIS
+  orderNumber: order.order_number,
+  items: order.items,
+  subtotal: order.subtotal,
+  shipping: order.shipping,
+  discount: order.discount,
+  total: order.total,
+  status: order.status,
+  trackingSteps: createTrackingSteps(order.status),
+  shippingAddress: order.shipping_address,
+  paymentMethod: order.payment_method,
+  couponCode: order.coupon_code,
+  razorpayPaymentId: order.razorpay_payment_id,
+  createdAt: order.created_at,
+  estimatedDelivery: order.estimated_delivery,
+}))
         setOrders(transformedOrders)
       }
     } catch (error) {

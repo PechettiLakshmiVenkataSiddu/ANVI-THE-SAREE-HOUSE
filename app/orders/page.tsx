@@ -10,9 +10,11 @@ import { ORDER_STATUS_LABELS } from '@/lib/constants'
 import { getStatusColor } from '@/lib/data/orders'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { useState } from 'react'
+import { useAuth } from '@/components/providers/AuthProvider'
 
 export default function OrdersPage() {
   const { orders } = useOrders()
+const { user } = useAuth()
   const [cancelModalOpen, setCancelModalOpen] = useState(false)
   const [orderToCancel, setOrderToCancel] = useState<any>(null)
   const [cancelling, setCancelling] = useState(false)
@@ -32,8 +34,9 @@ export default function OrdersPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          orderId: orderToCancel.id,
-        }),
+  orderId: orderToCancel.id,
+  userId: user?.id,              // ← directly from auth
+}),
       })
       const data = await response.json()
       if (data.success) {
