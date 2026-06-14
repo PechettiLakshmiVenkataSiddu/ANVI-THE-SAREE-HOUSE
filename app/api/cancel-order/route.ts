@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
-import { createServerClient } from '@supabase/ssr'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -10,21 +8,13 @@ const supabaseAdmin = createClient(
 
 export async function POST(request: Request) {
   try {
-    const { orderId } = await request.json()
+    const { orderId, userId } = await request.json()
 
     if (!orderId) {
       return NextResponse.json({ error: 'orderId is required' }, { status: 400 })
     }
 
-    // SECURITY FIX 1: Verify logged in user
-    const cookieStore = await cookies()
-    const supabaseUser = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      { cookies: { get: (name) => cookieStore.get(name)?.value } }
-    )
-    const { data: { user } } = await supabaseUser.auth.getUser()
-    if (!user) {
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -39,32 +29,29 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
-    // SECURITY FIX 2: Verify order belongs to this user
-    if (order.user_id !== user.id) {
+    // Verify order belongs to this user
+    if (order.user_id !== userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // SECURITY FIX 3: Only allow cancel for placed/confirmed
+    // Only allow cancel for placed/confirmed
     const cancellableStatuses = ['pending', 'processing']
     if (!cancellableStatuses.includes(order.status)) {
       return NextResponse.json({ 
-        error: `Order cannot be cancelled. Current status: ${order.status}` 
+        error: `Order cannot be cancelled at this stage.`
       }, { status: 400 })
     }
 
-    // SECURITY FIX 4: Prevent double refund
+    // Prevent double refund
     if (order.refund_status === 'refunded') {
       return NextResponse.json({ error: 'Order already refunded' }, { status: 400 })
     }
 
     // Handle Razorpay refund
-    if (order.payment_method === 'razorpay' || order.payment_method === 'Razorpay') {
-      
-      if (!order.razorpay_payment_id) {
-        return NextResponse.json({ error: 'Payment ID not found' }, { status: 400 })
-      }
-
-      // Call Razorpay refund API
+    if (
+      (order.payment_method === 'razorpay' || order.payment_method === 'Razorpay') &&
+      order.razorpay_payment_id
+    ) {
       const auth = Buffer.from(
         `${process.env.RAZORPAY_KEY_ID}:${process.env.RAZORPAY_KEY_SECRET}`
       ).toString('base64')
@@ -78,7 +65,7 @@ export async function POST(request: Request) {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ 
-            amount: Math.round(order.total * 100) // convert to paise
+            amount: Math.round(order.total * 100)
           }),
         }
       )
@@ -86,13 +73,11 @@ export async function POST(request: Request) {
       const refund = await refundRes.json()
 
       if (!refundRes.ok) {
-        console.error('Razorpay refund failed:', refund)
         return NextResponse.json({ 
           error: refund.error?.description || 'Refund failed' 
         }, { status: 400 })
       }
 
-      // Update order with refund info
       await supabaseAdmin.from('orders').update({
         status: 'cancelled',
         refund_status: 'refunded',
@@ -100,7 +85,6 @@ export async function POST(request: Request) {
         cancelled_at: new Date().toISOString(),
       }).eq('id', orderId)
 
-      // Log cancellation
       await supabaseAdmin.from('cancellations').insert({
         order_id: orderId,
         razorpay_payment_id: order.razorpay_payment_id,
@@ -110,12 +94,12 @@ export async function POST(request: Request) {
       })
 
       return NextResponse.json({ 
-        success: true, 
-        message: 'Order cancelled and refund initiated. Money will be credited in 5-7 business days.'
+        success: true,
+        message: 'Order cancelled. Refund will be credited in 5-7 business days.'
       })
     }
 
-    // COD - just cancel, no refund needed
+    // COD - just cancel
     await supabaseAdmin.from('orders').update({
       status: 'cancelled',
       cancelled_at: new Date().toISOString(),
@@ -127,7 +111,7 @@ export async function POST(request: Request) {
       razorpay_refund_id: null,
       refund_amount: 0,
       cancelled_at: new Date().toISOString(),
-    })
+    }).maybeSingle()
 
     return NextResponse.json({ 
       success: true,
