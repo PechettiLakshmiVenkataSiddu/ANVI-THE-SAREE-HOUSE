@@ -69,7 +69,7 @@ export default function ContactPage() {
             ))}
             <div className="pt-4 border-t border-border">
               <p className="font-semibold text-sm mb-1">Business Hours</p>
-              <p className="text-muted-foreground text-sm">Open 9 AM to 9 PM</p>
+              <p className="text-muted-foreground text-sm">Open 9:30 AM to 9 PM</p>
             </div>
           </div>
 
