@@ -8,7 +8,7 @@ const supabaseAdmin = createClient(
 
 export async function POST(request: Request) {
   try {
-    const { orderId, userId } = await request.json()
+    const { orderId } = await request.json()
 
     if (!orderId) {
       return NextResponse.json({ error: 'orderId is required' }, { status: 400 })
@@ -25,23 +25,39 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
-    // Only allow cancel for placed/confirmed
+    // Check cancellable status
     const cancellableStatuses = ['pending', 'processing']
     if (!cancellableStatuses.includes(order.status)) {
-      return NextResponse.json({ 
-        error: `Order cannot be cancelled at this stage.`
+      return NextResponse.json({
+        error: 'Order cannot be cancelled at this stage.'
       }, { status: 400 })
     }
 
-    // Prevent double refund
-    if (order.refund_status === 'refunded') {
-      return NextResponse.json({ error: 'Order already refunded' }, { status: 400 })
+    // ATOMIC LOCK - prevents double refund
+    // Only ONE request can get true, all others get false
+    const { data: lockResult } = await supabaseAdmin
+      .rpc('lock_order_for_refund', { order_id: orderId })
+
+    if (!lockResult) {
+      return NextResponse.json({
+        error: 'Order cancellation already in progress.'
+      }, { status: 400 })
     }
 
-    // Handle Razorpay refund
+    // Check if already refunded
+    if (order.refund_status === 'refunded') {
+      return NextResponse.json({ 
+        error: 'Order already refunded' 
+      }, { status: 400 })
+    }
+
+    const isLiveMode = process.env.RAZORPAY_KEY_ID?.startsWith('rzp_live_')
+
+    // Handle Razorpay refund (only in live mode)
     if (
       (order.payment_method === 'razorpay' || order.payment_method === 'Razorpay') &&
-      order.razorpay_payment_id
+      order.razorpay_payment_id &&
+      isLiveMode
     ) {
       const auth = Buffer.from(
         `${process.env.RAZORPAY_KEY_ID}:${process.env.RAZORPAY_KEY_SECRET}`
@@ -55,7 +71,7 @@ export async function POST(request: Request) {
             'Authorization': `Basic ${auth}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             amount: Math.round(order.total * 100)
           }),
         }
@@ -64,11 +80,18 @@ export async function POST(request: Request) {
       const refund = await refundRes.json()
 
       if (!refundRes.ok) {
-        return NextResponse.json({ 
-          error: refund.error?.description || 'Refund failed' 
+        // Release lock if refund failed
+        await supabaseAdmin
+          .from('orders')
+          .update({ refund_initiated_at: null })
+          .eq('id', orderId)
+
+        return NextResponse.json({
+          error: refund.error?.description || 'Refund failed'
         }, { status: 400 })
       }
 
+      // Mark as refunded
       await supabaseAdmin.from('orders').update({
         status: 'cancelled',
         refund_status: 'refunded',
@@ -85,16 +108,16 @@ export async function POST(request: Request) {
           cancelled_at: new Date().toISOString(),
         })
       } catch (e) {
-        console.log('Cancellations table insert failed - continuing')
+        console.log('Cancellations log failed - continuing')
       }
 
-      return NextResponse.json({ 
+      return NextResponse.json({
         success: true,
         message: 'Order cancelled. Refund will be credited in 5-7 business days.'
       })
     }
 
-    // COD - just cancel
+    // COD or Test mode - just cancel
     await supabaseAdmin.from('orders').update({
       status: 'cancelled',
       cancelled_at: new Date().toISOString(),
@@ -109,10 +132,10 @@ export async function POST(request: Request) {
         cancelled_at: new Date().toISOString(),
       })
     } catch (e) {
-      console.log('Cancellations table insert failed - continuing')
+      console.log('Cancellations log failed - continuing')
     }
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
       message: 'Order cancelled successfully.'
     })
