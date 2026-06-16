@@ -1,46 +1,53 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Razorpay from 'razorpay'
-import crypto from 'crypto'
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 export async function POST(request: NextRequest) {
   try {
-const { amount } = await request.json()
-
-// Verify user is logged in
+    const { amount, userId, cartItems, shippingAddress } = await request.json()
 
     if (!amount || typeof amount !== 'number') {
       return NextResponse.json({ error: 'Invalid amount' }, { status: 400 })
     }
 
-    const keyId = process.env.RAZORPAY_KEY_ID
-    const keySecret = process.env.RAZORPAY_KEY_SECRET
-
-    if (!keyId || !keySecret) {
-      return NextResponse.json({ error: 'Razorpay credentials not configured' }, { status: 500 })
-    }
-
     const razorpay = new Razorpay({
-      key_id: keyId,
-      key_secret: keySecret,
+      key_id: process.env.RAZORPAY_KEY_ID!,
+      key_secret: process.env.RAZORPAY_KEY_SECRET!,
     })
 
-    // Razorpay expects amount in paise (multiply by 100)
-    const amountInPaise = Math.round(amount * 100)
-
-    const options = {
-      amount: amountInPaise,
+    const order = await razorpay.orders.create({
+      
+      amount: Math.round(amount * 100),
       currency: 'INR',
       receipt: `receipt_${Date.now()}`,
-      notes: {
-        key1: 'value1',
-      },
-    }
+    })
 
-    const order = await razorpay.orders.create(options)
+    // ✅ Save order to Supabase immediately
+    const { error } = await supabase
+      .from('orders')
+      .insert({
+        razorpay_order_id: order.id,
+        user_id: userId,
+        amount: amount,
+        payment_status: 'pending',
+        status: 'pending',
+        items: cartItems,
+        shipping_address: shippingAddress,
+      })
+
+    if (error) {
+      console.error('Supabase insert error:', error)
+      return NextResponse.json({ error: 'Failed to save order' }, { status: 500 })
+    }
 
     return NextResponse.json({ order })
   } catch (error) {
-    console.error('Error creating Razorpay order:', error)
+    console.error('Error creating order:', error)
     return NextResponse.json({ error: 'Failed to create order' }, { status: 500 })
   }
 }
