@@ -128,7 +128,6 @@ const estimatedDelivery = deliveryDate.toLocaleDateString('en-IN', {
           quantity: item.quantity,
           color: item.color,
         })),
-        subtotal,
         shipping,
         discount,
         total,
