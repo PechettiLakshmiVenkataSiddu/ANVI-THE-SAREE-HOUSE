@@ -95,11 +95,13 @@ export function OrderProvider({ children }: { children: ReactNode }) {
 
       const { subtotal, shipping, discount, total } = await calculateTotal(items, couponCode)
       const orderNumber = generateOrderNumber()
-      const estimatedDelivery = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-      })
+const deliveryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+deliveryDate.setHours(11, 0, 0, 0)
+const estimatedDelivery = deliveryDate.toLocaleDateString('en-IN', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+}) + ' by 11:00 AM'
 
       // Allowed order statuses per database constraint
       const allowedStatuses = ['pending', 'processing', 'shipped', 'out_for_delivery', 'delivered', 'cancelled']

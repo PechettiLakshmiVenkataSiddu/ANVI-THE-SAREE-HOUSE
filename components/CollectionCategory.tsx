@@ -23,7 +23,7 @@ export default function CollectionCategory({ title, image, slug }: CollectionCat
 
         {/* Text Overlay */}
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-          <h3 className="text-white text-2xl font-bold tracking-widest uppercase">{title}</h3>
+          <h3 className="text-white text3xl font-bold tracking-widest uppercase">{title}</h3>
           <div className="text-white text-sm mt-2 font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
             EXPLORE NOW →
           </div>
