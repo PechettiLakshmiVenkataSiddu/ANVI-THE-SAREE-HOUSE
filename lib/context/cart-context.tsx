@@ -1,8 +1,9 @@
 'use client'
 
-import { createContext, useContext, useCallback, type ReactNode } from 'react'
+import { createContext, useContext, useCallback, useEffect, type ReactNode } from 'react'
 import { useLocalStorage } from '@/lib/hooks/useLocalStorage'
 import { getCartItemKey } from '@/lib/utils/cart'
+import { useAuth } from '@/components/providers/AuthProvider'
 import type { CartItem, Product } from '@/lib/types'
 
 interface CartContextType {
@@ -22,8 +23,14 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems, isHydrated] = useLocalStorage<CartItem[]>('saree-cart', [])
-  const [couponCode, setCouponCode] = useLocalStorage<string | null>('saree-coupon', null)
+  const { user } = useAuth()
+  
+  // Cart key is unique per user
+  const cartKey = user ? `saree-cart-${user.id}` : 'saree-cart-guest'
+  const couponKey = user ? `saree-coupon-${user.id}` : 'saree-coupon-guest'
+
+  const [items, setItems, isHydrated] = useLocalStorage<CartItem[]>(cartKey, [])
+  const [couponCode, setCouponCode] = useLocalStorage<string | null>(couponKey, null)
 
   // ✅ Fixed — handles both Supabase and static data
 const addItem = useCallback(
