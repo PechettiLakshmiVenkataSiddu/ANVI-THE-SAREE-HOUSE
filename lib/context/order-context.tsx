@@ -97,12 +97,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
       const orderNumber = generateOrderNumber()
 const deliveryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
 deliveryDate.setHours(11, 0, 0, 0)
-const estimatedDelivery = deliveryDate.toLocaleDateString('en-IN', {
-  day: 'numeric',
-  month: 'short',
-  year: 'numeric',
-}) + ' by 11:00 AM'
-
+const estimatedDelivery = deliveryDate.toISOString()
       // Allowed order statuses per database constraint
       const allowedStatuses = ['pending', 'processing', 'shipped', 'out_for_delivery', 'delivered', 'cancelled']
 
