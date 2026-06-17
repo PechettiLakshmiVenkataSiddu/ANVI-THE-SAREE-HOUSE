@@ -5,21 +5,17 @@ export async function POST(request: NextRequest) {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = await request.json()
 
-    // Validate required fields
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
       return NextResponse.json({ error: 'Missing payment details' }, { status: 400 })
     }
 
-    // Use KEY_SECRET (not webhook secret)
     const key_secret = process.env.RAZORPAY_KEY_SECRET || ''
 
-    // Generate expected signature
     const expectedSignature = crypto
       .createHmac('sha256', key_secret)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
       .digest('hex')
 
-    // Compare signatures
     const isValid = crypto.timingSafeEqual(
       Buffer.from(expectedSignature),
       Buffer.from(razorpay_signature)
@@ -29,8 +25,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid payment signature' }, { status: 400 })
     }
 
-    // Signature valid — return success
-    // Order is saved by createOrder() in the frontend after this
     return NextResponse.json({ success: true })
 
   } catch (error) {
