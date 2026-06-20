@@ -1,6 +1,3 @@
-'use client'
-
-import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Package, Truck, RotateCcw, Lock, Headphones } from 'lucide-react'
 import Header from '@/components/Header'
@@ -21,37 +18,28 @@ const features = [
   { icon: Headphones, title: '24/7 SUPPORT', description: "We're here to help" },
 ]
 
-export default function HomePage() {
-  // ✅ Fixed
-  const [featuredProducts, setFeaturedProducts] = useState<any[]>([])
-  const [newArrivals, setNewArrivals] = useState<any[]>([])
-  const [bestSellers, setBestSellers] = useState<any[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
+async function getProducts() {
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .order("created_at", { ascending: false })
 
-  useEffect(() => {
-    fetchAllProducts()
-  }, [])
-
-  async function fetchAllProducts() {
-    const { data, error } = await supabase
-      .from("products")
-      .select("*")
-      .order("created_at", { ascending: false })
-
-    if (error) {
-      console.error("Error fetching products:", error)
-      setLoading(false)
-      return
-    }
-
-    const all = data ?? []
-
-    // Filter from Supabase data using your boolean columns
-    setFeaturedProducts(all.filter(p => p.is_featured).slice(0, 4))
-    setNewArrivals(all.filter(p => p.is_new).slice(0, 4))
-    setBestSellers(all.filter(p => p.is_best_seller).slice(0, 4))
-    setLoading(false)
+  if (error) {
+    console.error("Error fetching products:", error)
+    return { featuredProducts: [], newArrivals: [], bestSellers: [] }
   }
+
+  const all = data ?? []
+
+  return {
+    featuredProducts: all.filter(p => p.is_featured).slice(0, 4),
+    newArrivals: all.filter(p => p.is_new).slice(0, 4),
+    bestSellers: all.filter(p => p.is_best_seller).slice(0, 4),
+  }
+}
+
+export default async function HomePage() {
+  const { featuredProducts, newArrivals, bestSellers } = await getProducts()
 
   return (
     <main className="min-h-screen bg-background">
@@ -80,34 +68,26 @@ export default function HomePage() {
         </div>
       </section>
 
-      {loading ? (
-        <div className="text-center py-20 text-muted-foreground">
-          Loading products...
-        </div>
-      ) : (
-        <>
-          <ProductGrid
-            title="Featured Products"
-            subtitle="CURATED FOR YOU"
-            products={featuredProducts}
-            viewAllHref="/shop?filter=featured"
-            className="bg-card border-t border-border"
-          />
-          <ProductGrid
-            title="New Arrivals"
-            subtitle="JUST LANDED"
-            products={newArrivals}
-            viewAllHref="/shop?filter=new"
-          />
-          <ProductGrid
-            title="Best Sellers"
-            subtitle="CUSTOMER FAVORITES"
-            products={bestSellers}
-            viewAllHref="/shop?filter=bestseller"
-            className="bg-card border-t border-border"
-          />
-        </>
-      )}
+      <ProductGrid
+        title="Featured Products"
+        subtitle="CURATED FOR YOU"
+        products={featuredProducts}
+        viewAllHref="/shop?filter=featured"
+        className="bg-card border-t border-border"
+      />
+      <ProductGrid
+        title="New Arrivals"
+        subtitle="JUST LANDED"
+        products={newArrivals}
+        viewAllHref="/shop?filter=new"
+      />
+      <ProductGrid
+        title="Best Sellers"
+        subtitle="CUSTOMER FAVORITES"
+        products={bestSellers}
+        viewAllHref="/shop?filter=bestseller"
+        className="bg-card border-t border-border"
+      />
 
       <Testimonials />
       <Newsletter />
