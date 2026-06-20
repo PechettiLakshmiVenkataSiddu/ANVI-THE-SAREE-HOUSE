@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { supabaseServer } from "@/lib/supabase-server";
 import { Package, Truck, RotateCcw, Lock, Headphones } from 'lucide-react'
 import Header from '@/components/Header'
 import Footer from '@/components/layout/Footer'
@@ -19,7 +19,7 @@ const features = [
 ]
 
 async function getProducts() {
-  const { data, error } = await supabase
+  const { data, error } = await supabaseServer
     .from("products")
     .select("*")
     .order("created_at", { ascending: false })
