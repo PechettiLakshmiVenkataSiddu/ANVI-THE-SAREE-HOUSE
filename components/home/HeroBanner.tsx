@@ -62,8 +62,10 @@ export default function HeroBanner() {
             alt={heroSlides[current].subtitle}
             fill
             priority={current === 0}
+            fetchPriority={current === 0 ? 'high' : 'auto'}
             className="object-cover"
             sizes="100vw"
+            quality={85}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/20" />
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-4">
