@@ -1,5 +1,4 @@
 import { supabaseServer } from "@/lib/supabase-server";
-import { Package, Truck, RotateCcw, Lock, Headphones } from 'lucide-react'
 import Header from '@/components/Header'
 import Footer from '@/components/layout/Footer'
 import HeroBanner from '@/components/home/HeroBanner'
@@ -11,12 +10,12 @@ import FeatureBadge from '@/components/FeatureBadge'
 import { categories } from '@/lib/data/categories'
 
 const features = [
-  { icon: Package, title: 'PREMIUM QUALITY', description: 'Finest Fabrics' },
-  { icon: Truck, title: 'FREE SHIPPING', description: 'Free delivery all over India' },
-  { icon: RotateCcw, title: 'EASY RETURNS', description: 'Within 7 days' },
-  { icon: Lock, title: 'SECURE PAYMENTS', description: '100% Safe & Secure' },
-  { icon: Headphones, title: '24/7 SUPPORT', description: "We're here to help" },
-]
+  { icon: 'Package', title: 'PREMIUM QUALITY', description: 'Finest Fabrics' },
+  { icon: 'Truck', title: 'FREE SHIPPING', description: 'Free delivery all over India' },
+  { icon: 'RotateCcw', title: 'EASY RETURNS', description: 'Within 7 days' },
+  { icon: 'Lock', title: 'SECURE PAYMENTS', description: '100% Safe & Secure' },
+  { icon: 'Headphones', title: '24/7 SUPPORT', description: "We're here to help" },
+] as const
 
 async function getProducts() {
   const { data, error } = await supabaseServer
