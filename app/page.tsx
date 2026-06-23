@@ -9,6 +9,8 @@ import CollectionCategory from '@/components/CollectionCategory'
 import FeatureBadge from '@/components/FeatureBadge'
 import { categories } from '@/lib/data/categories'
 
+export const revalidate = 0
+
 const features = [
   { icon: 'Package', title: 'PREMIUM QUALITY', description: 'Finest Fabrics' },
   { icon: 'Truck', title: 'FREE SHIPPING', description: 'Free delivery all over India' },
