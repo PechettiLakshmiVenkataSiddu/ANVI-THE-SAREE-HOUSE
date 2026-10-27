@@ -80,7 +80,7 @@ export default function CartPage() {
                       <div>
                         <h3 className="font-semibold text-sm line-clamp-2">{item.name}</h3>
                         <p className="text-xs text-muted-foreground mt-1">
-                          {item.color} · {item.size} · {item.blouseOption}
+                          {[item.color, item.size].filter(Boolean).join(' · ')}
                         </p>
                         {item.productId in stocks && (stocks[item.productId] ?? 0) <= 0 && (
                           <p className="text-xs text-destructive font-semibold mt-1">Out of stock</p>

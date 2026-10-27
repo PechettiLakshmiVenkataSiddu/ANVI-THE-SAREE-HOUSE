@@ -33,7 +33,6 @@ export default function ProductPage({ params }: ProductPageProps) {
 
   const [selectedColor, setSelectedColor] = useState('')
   const [selectedSize, setSelectedSize] = useState('')
-  const [selectedBlouse, setSelectedBlouse] = useState('')
   const [quantity, setQuantity] = useState(1)
 
   // Rating states
@@ -74,13 +73,11 @@ export default function ProductPage({ params }: ProductPageProps) {
       // Set defaults for selectors
       const colors = Array.isArray(data.colors) ? data.colors : []
       const sizes = Array.isArray(data.sizes) ? data.sizes : []
-      const blouseOptions = Array.isArray(data.blouse_options) ? data.blouse_options : []
 
       setSelectedColor(
         typeof colors[0] === 'string' ? colors[0] : colors[0]?.color ?? ''
       )
       setSelectedSize(sizes[0] ?? '')
-      setSelectedBlouse(blouseOptions[0] ?? '')
 
       // Fetch related products (same category)
       if (data.category) {
@@ -170,12 +167,12 @@ export default function ProductPage({ params }: ProductPageProps) {
 
   const handleAddToCart = async () => {
     if (outOfStock) return
-    await addItem(productObj, quantity, selectedColor, selectedSize, selectedBlouse)
+    await addItem(productObj, quantity, selectedColor, selectedSize)
   }
 
   const handleBuyNow = async () => {
     if (outOfStock) return
-    const added = await addItem(productObj, quantity, selectedColor, selectedSize, selectedBlouse)
+    const added = await addItem(productObj, quantity, selectedColor, selectedSize)
     if (added) router.push('/checkout')
   }
 
@@ -375,28 +372,6 @@ export default function ProductPage({ params }: ProductPageProps) {
                 </div>
               </div>
             )}
-
-            {/* Blouse Options - Hidden on mobile */}
-            {blouseOptions.length > 0 && (
-              <div className="hidden md:block">
-                <label className="text-sm font-semibold mb-3 block">BLOUSE OPTION</label>
-                <div className="flex gap-2 flex-wrap mb-6">
-                  {blouseOptions.map((option: string) => (
-                    <button
-                      key={option}
-                      onClick={() => setSelectedBlouse(option)}
-                      className={`px-4 py-2 text-xs border rounded-md transition ${selectedBlouse === option
-                          ? 'border-primary bg-primary text-primary-foreground'
-                          : 'border-border hover:border-primary'
-                        }`}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
 
             {/* Quantity */}
             <div className="flex items-center gap-4">
