@@ -156,21 +156,27 @@ export default function ProductPage({ params }: ProductPageProps) {
   }
   const normalizedImages = images.map(normalizeImage)
 
+  const stock = Number(product.stock) || 0
+  const outOfStock = stock <= 0
+
   const productObj = {
     ...product,
     images: normalizedImages,
     originalPrice,
     blouseOptions,
     categoryLabel,
+    stock,
   }
 
-  const handleAddToCart = () => {
-    addItem(productObj, quantity, selectedColor, selectedSize, selectedBlouse)
+  const handleAddToCart = async () => {
+    if (outOfStock) return
+    await addItem(productObj, quantity, selectedColor, selectedSize, selectedBlouse)
   }
 
-  const handleBuyNow = () => {
-    addItem(productObj, quantity, selectedColor, selectedSize, selectedBlouse)
-    router.push('/checkout')
+  const handleBuyNow = async () => {
+    if (outOfStock) return
+    const added = await addItem(productObj, quantity, selectedColor, selectedSize, selectedBlouse)
+    if (added) router.push('/checkout')
   }
 
   const handleShare = async () => {
@@ -406,25 +412,32 @@ export default function ProductPage({ params }: ProductPageProps) {
                   {quantity}
                 </span>
                 <button
-                  onClick={() => setQuantity(quantity + 1)}
-                  className="p-2.5 hover:bg-secondary"
+                  onClick={() => setQuantity(Math.min(Math.max(stock, 1), quantity + 1))}
+                  disabled={outOfStock || quantity >= stock}
+                  className="p-2.5 hover:bg-secondary disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <Plus size={16} />
                 </button>
               </div>
             </div>
 
+            {outOfStock && (
+              <p className="text-sm font-semibold text-destructive">Out of stock</p>
+            )}
+
             {/* Buttons */}
             <div className="space-y-3 pt-2">
               <button
                 onClick={handleAddToCart}
-                className="w-full bg-primary text-primary-foreground py-3.5 rounded-md font-semibold tracking-wide hover:opacity-90 transition"
+                disabled={outOfStock}
+                className="w-full bg-primary text-primary-foreground py-3.5 rounded-md font-semibold tracking-wide hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                ADD TO CART
+                {outOfStock ? 'OUT OF STOCK' : 'ADD TO CART'}
               </button>
               <button
                 onClick={handleBuyNow}
-                className="w-full border-2 border-primary text-primary py-3.5 rounded-md font-semibold tracking-wide hover:bg-secondary transition"
+                disabled={outOfStock}
+                className="w-full border-2 border-primary text-primary py-3.5 rounded-md font-semibold tracking-wide hover:bg-secondary transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 BUY NOW
               </button>

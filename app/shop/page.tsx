@@ -28,6 +28,7 @@ interface Product {
   is_best_seller?: boolean
   is_featured?: boolean
   created_at?: string
+  stock?: number
 }
 
 function ShopContent() {
@@ -240,6 +241,7 @@ function ShopContent() {
                     sizes={product.sizes ?? []}
                     description={product.description ?? ''}
                     category={product.category ?? ''}
+                    stock={product.stock}
                   />
                 ))}
               </div>

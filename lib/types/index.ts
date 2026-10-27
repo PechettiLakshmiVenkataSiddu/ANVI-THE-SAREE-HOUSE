@@ -33,6 +33,7 @@ export interface Product {
   isBestSeller?: boolean
   isFeatured?: boolean
   tags: string[]
+  stock?: number
 }
 
 export interface Category {

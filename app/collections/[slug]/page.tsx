@@ -150,6 +150,7 @@ export default function CollectionPage({ params }: CollectionPageProps) {
                 sizes={product.sizes ?? []}
                 description={product.description ?? ''}
                 category={product.category ?? ''}
+                stock={product.stock}
               />
             ))}
           </div>

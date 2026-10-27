@@ -44,8 +44,10 @@ export default function ProductGrid({ title, subtitle, products, viewAllHref, cl
               name={product.name}
               price={product.price}
               originalPrice={product.originalPrice}
+              original_price={(product as { original_price?: number }).original_price}
               rating={product.rating}
               reviews={product.reviews}
+              stock={product.stock}
             />
           ))}
         </div>

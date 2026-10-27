@@ -13,29 +13,28 @@ export default function WishlistPage() {
   const { items, removeItem, clearWishlist } = useWishlist()
   const { addItem } = useCart()
 
-  const addToCart = (item: any) => {
-    // Build product object directly from wishlist item
-   addItem({
-  id: item.productId,
-  slug: item.productId,
-  name: item.name,
-  description: '',
-  details: [],
-  price: item.price,
-  originalPrice: item.originalPrice,
-  images: [item.image],
-  category: '',
-  categoryLabel: '',
-  colors: [],
-  sizes: [],
-  blouseOptions: [],
-  rating: item.rating || 0,
-  reviews: item.reviews || 0,
-  isNew: false,
-  isBestSeller: false,
-  isFeatured: false,
-  tags: [],
-})
+  const addToCart = async (item: any) => {
+    await addItem({
+      id: item.productId,
+      slug: item.productId,
+      name: item.name,
+      description: '',
+      details: [],
+      price: item.price,
+      originalPrice: item.originalPrice,
+      images: [item.image],
+      category: '',
+      categoryLabel: '',
+      colors: [],
+      sizes: [],
+      blouseOptions: [],
+      rating: item.rating || 0,
+      reviews: item.reviews || 0,
+      isNew: false,
+      isBestSeller: false,
+      isFeatured: false,
+      tags: [],
+    })
   }
 
   const moveAllToCart = () => {

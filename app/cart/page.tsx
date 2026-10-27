@@ -10,6 +10,7 @@ import Breadcrumbs from '@/components/layout/Breadcrumbs'
 import { useCart } from '@/lib/context/cart-context'
 import { calculateTotal, validateCoupon } from '@/lib/utils/cart'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
+import { cartStockIssue, fetchProductStocks } from '@/lib/utils/stock'
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, couponCode, applyCoupon, removeCoupon } = useCart()
@@ -17,10 +18,17 @@ export default function CartPage() {
   const [couponMessage, setCouponMessage] = useState('')
   const [totals, setTotals] = useState({ subtotal: 0, shipping: 0, discount: 0, total: 0 })
   const [loadingCoupon, setLoadingCoupon] = useState(false)
+  const [stocks, setStocks] = useState<Record<string, number>>({})
 
   useEffect(() => {
     calculateTotal(items, couponCode).then(setTotals)
   }, [items, couponCode])
+
+  useEffect(() => {
+    fetchProductStocks(items.map((item) => item.productId)).then(setStocks)
+  }, [items])
+
+  const availability = cartStockIssue(items, stocks)
 
   const handleApplyCoupon = async () => {
     setLoadingCoupon(true)
@@ -74,6 +82,9 @@ export default function CartPage() {
                         <p className="text-xs text-muted-foreground mt-1">
                           {item.color} · {item.size} · {item.blouseOption}
                         </p>
+                        {item.productId in stocks && (stocks[item.productId] ?? 0) <= 0 && (
+                          <p className="text-xs text-destructive font-semibold mt-1">Out of stock</p>
+                        )}
                         <button
                           onClick={() => removeItem(item.productId, item.color, item.size)}
                           className="text-xs text-destructive mt-2 flex items-center gap-1 hover:underline md:hidden"
@@ -96,7 +107,8 @@ export default function CartPage() {
                         <span className="px-4 font-semibold text-sm">{item.quantity}</span>
                         <button
                           onClick={() => updateQuantity(item.productId, item.color, item.size, item.quantity + 1)}
-                          className="p-2 hover:bg-secondary"
+                          disabled={item.quantity >= (stocks[item.productId] ?? item.quantity)}
+                          className="p-2 hover:bg-secondary disabled:opacity-40 disabled:cursor-not-allowed"
                         >
                           <Plus size={14} />
                         </button>
@@ -180,12 +192,25 @@ export default function CartPage() {
                   </div>
                 </div>
 
+                {!availability.ok && (
+                  <p className="text-xs text-destructive mt-4">{availability.message}</p>
+                )}
+                {availability.ok ? (
                 <Link
                   href="/checkout"
                   className="block w-full text-center bg-primary text-primary-foreground py-3 rounded-md font-semibold mt-6 hover:opacity-90 transition"
                 >
                   PROCEED TO CHECKOUT
                 </Link>
+                ) : (
+                  <button
+                    type="button"
+                    disabled
+                    className="block w-full text-center bg-primary text-primary-foreground py-3 rounded-md font-semibold mt-6 opacity-50 cursor-not-allowed"
+                  >
+                    OUT OF STOCK
+                  </button>
+                )}
                 <Link href="/shop" className="block text-center text-sm text-accent mt-4 hover:text-primary">
                   Continue Shopping
                 </Link>

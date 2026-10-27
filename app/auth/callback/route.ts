@@ -1,10 +1,27 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
+function getRequestOrigin(request: Request): string {
+  const originHeader = request.headers.get('origin')
+  if (originHeader) return originHeader.replace(/\/$/, '')
+
+  const forwardedHost = request.headers.get('x-forwarded-host')?.split(',')[0]?.trim()
+  const host = forwardedHost || request.headers.get('host')
+  if (host) {
+    const forwardedProto = request.headers.get('x-forwarded-proto')?.split(',')[0]?.trim()
+    const proto = forwardedProto || (host.includes('localhost') ? 'http' : 'https')
+    return `${proto}://${host}`
+  }
+
+  return new URL(request.url).origin
+}
+
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url)
+  const { searchParams } = new URL(request.url)
+  const origin = getRequestOrigin(request)
   const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? '/'
+  let next = searchParams.get('next') ?? '/'
+  if (!next.startsWith('/') || next.startsWith('//')) next = '/'
 
   if (code) {
     const supabase = await createClient()

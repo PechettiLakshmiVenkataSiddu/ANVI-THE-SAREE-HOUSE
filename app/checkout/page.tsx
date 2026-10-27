@@ -12,6 +12,7 @@ import { calculateTotal } from '@/lib/utils/cart'
 import type { ShippingAddress } from '@/lib/types'
 import Image from 'next/image'
 import ProtectedRoute from '@/components/auth/ProtectedRoute'
+import { cartStockIssue, fetchProductStocks } from '@/lib/utils/stock'
 
 const paymentMethods = ['Cash on Delivery', 'Razorpay']
 
@@ -28,10 +29,17 @@ function CheckoutPageContent() {
   const { items, couponCode, clearCart } = useCart()
   const { createOrder } = useOrders()
   const [totals, setTotals] = useState({ subtotal: 0, shipping: 0, discount: 0, total: 0 })
+  const [stocks, setStocks] = useState<Record<string, number>>({})
 
   useEffect(() => {
     calculateTotal(items, couponCode).then(setTotals)
   }, [items, couponCode])
+
+  useEffect(() => {
+    fetchProductStocks(items.map((item) => item.productId)).then(setStocks)
+  }, [items])
+
+  const availability = cartStockIssue(items, stocks)
 
   const [form, setForm] = useState<ShippingAddress>({
     firstName: '',
@@ -95,6 +103,14 @@ function CheckoutPageContent() {
     setLoading(true)
 
     try {
+      const stocks = await fetchProductStocks(items.map((item) => item.productId))
+      const availability = cartStockIssue(items, stocks)
+      if (!availability.ok) {
+        alert(availability.message)
+        setLoading(false)
+        return
+      }
+
       if (paymentMethod === 'Razorpay') {
         // Step 1: Create Razorpay order on server
         const { data: { session } } = await supabase.auth.getSession()
@@ -179,7 +195,7 @@ const response = await fetch('/api/payment/create-order', {
       }
     } catch (err) {
       console.error('Order failed:', err)
-      alert('Failed to place order. Please try again.')
+      alert(err instanceof Error ? err.message : 'Failed to place order. Please try again.')
       setLoading(false)
     }
   }
@@ -295,6 +311,9 @@ const response = await fetch('/api/payment/create-order', {
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-semibold line-clamp-1">{item.name}</p>
                         <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
+                        {item.productId in stocks && (stocks[item.productId] ?? 0) <= 0 && (
+                          <p className="text-xs text-destructive font-semibold">Out of stock</p>
+                        )}
                       </div>
                       <span className="text-xs font-semibold">
                         ₹{(item.price * item.quantity).toLocaleString()}
@@ -322,12 +341,15 @@ const response = await fetch('/api/payment/create-order', {
                     <span>₹{totals.total.toLocaleString()}</span>
                   </div>
                 </div>
+                {!availability.ok && (
+                  <p className="text-xs text-destructive mt-4">{availability.message}</p>
+                )}
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || !availability.ok}
                   className="w-full bg-primary text-primary-foreground py-3 rounded-md font-semibold mt-6 hover:opacity-90 transition disabled:opacity-60"
                 >
-                  {loading ? 'PROCESSING...' : 'PLACE ORDER'}
+                  {loading ? 'PROCESSING...' : availability.ok ? 'PLACE ORDER' : 'OUT OF STOCK'}
                 </button>
               </div>
             </div>

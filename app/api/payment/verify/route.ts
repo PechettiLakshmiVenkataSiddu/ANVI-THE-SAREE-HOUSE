@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
+import { applyStockByRazorpayPaymentId } from '@/lib/stock'
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,6 +25,10 @@ export async function POST(request: NextRequest) {
     if (!isValid) {
       return NextResponse.json({ error: 'Invalid payment signature' }, { status: 400 })
     }
+
+    // Decrement only after a valid signature, and only if the DB order already exists.
+    // Checkout creates the order after this response; apply-order / webhook cover that path.
+    await applyStockByRazorpayPaymentId(razorpay_payment_id)
 
     return NextResponse.json({ success: true })
 
