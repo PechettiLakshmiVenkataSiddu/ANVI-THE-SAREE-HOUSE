@@ -15,6 +15,19 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute'
 import { cartStockIssue, fetchProductStocks } from '@/lib/utils/stock'
 
 const paymentMethods = ['Cash on Delivery', 'Razorpay']
+const PENDING_RAZORPAY_ORDER_KEY = 'anvi-pending-razorpay-order'
+
+async function waitForPaidOrder(orderId: string, attempts = 8, delayMs = 2000) {
+  for (let i = 0; i < attempts; i++) {
+    const response = await fetch(`/api/orders/status?orderId=${encodeURIComponent(orderId)}`)
+    const data = await response.json().catch(() => ({}))
+    if (response.ok && data.paid) return true
+    if (i < attempts - 1) {
+      await new Promise((resolve) => setTimeout(resolve, delayMs))
+    }
+  }
+  return false
+}
 
 export default function CheckoutPage() {
   return (
@@ -26,10 +39,11 @@ export default function CheckoutPage() {
 
 function CheckoutPageContent() {
   const router = useRouter()
-  const { items, couponCode, clearCart } = useCart()
-  const { createOrder } = useOrders()
+  const { items, couponCode, clearCart, isHydrated } = useCart()
+  const { createOrder, refreshOrders } = useOrders()
   const [totals, setTotals] = useState({ subtotal: 0, shipping: 0, discount: 0, total: 0 })
   const [stocks, setStocks] = useState<Record<string, number>>({})
+  const [recovering, setRecovering] = useState(true)
 
   useEffect(() => {
     calculateTotal(items, couponCode).then(setTotals)
@@ -66,6 +80,54 @@ function CheckoutPageContent() {
       document.body.removeChild(script)
     }
   }, [])
+
+  useEffect(() => {
+    if (!isHydrated) return
+
+    const pendingId = localStorage.getItem(PENDING_RAZORPAY_ORDER_KEY)
+    if (!pendingId) {
+      setRecovering(false)
+      return
+    }
+
+    let cancelled = false
+    setRecovering(true)
+
+    waitForPaidOrder(pendingId)
+      .then(async (paid) => {
+        if (cancelled) return
+        if (paid) {
+          localStorage.removeItem(PENDING_RAZORPAY_ORDER_KEY)
+          clearCart()
+          await refreshOrders()
+          router.push(`/checkout/confirmation?orderId=${pendingId}`)
+          return
+        }
+        setRecovering(false)
+      })
+      .catch(() => {
+        if (!cancelled) setRecovering(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [isHydrated, clearCart, refreshOrders, router])
+
+  if (!isHydrated || recovering) {
+    return (
+      <main className="min-h-screen bg-background">
+        <Header />
+        <div className="max-w-7xl mx-auto px-4 py-16 text-center">
+          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">
+            {recovering ? 'Checking your payment...' : 'Loading checkout...'}
+          </p>
+        </div>
+        <Footer />
+      </main>
+    )
+  }
 
   if (items.length === 0) {
     return (
@@ -112,25 +174,35 @@ function CheckoutPageContent() {
       }
 
       if (paymentMethod === 'Razorpay') {
-        // Step 1: Create Razorpay order on server
         const { data: { session } } = await supabase.auth.getSession()
 
-const response = await fetch('/api/payment/create-order', {
-  method: 'POST',
-  headers: { 
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${session?.access_token}`
-  },
-  body: JSON.stringify({ amount: totals.total }),
-})
+        const response = await fetch('/api/payment/create-order', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({
+            items: items.map((item) => ({
+              productId: item.productId,
+              quantity: item.quantity,
+              color: item.color,
+              size: item.size,
+            })),
+            shipping_address: form,
+            coupon_code: couponCode,
+          }),
+        })
 
-        const { order } = await response.json()
+        const payload = await response.json()
+        const { order, orderId } = payload
 
-        if (!order) {
-          throw new Error('Failed to create Razorpay order')
+        if (!response.ok || !order || !orderId) {
+          throw new Error(payload.error || 'Failed to create Razorpay order')
         }
 
-        // Step 2: Open Razorpay checkout
+        localStorage.setItem(PENDING_RAZORPAY_ORDER_KEY, orderId)
+
         const options = {
           key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
           amount: order.amount,
@@ -146,7 +218,6 @@ const response = await fetch('/api/payment/create-order', {
           theme: {
             color: '#8B5E3C',
           },
-          // Step 3: After payment success, verify then save order
           handler: async function (razorpayResponse: any) {
             try {
               const verifyResponse = await fetch('/api/payment/verify', {
@@ -156,24 +227,28 @@ const response = await fetch('/api/payment/create-order', {
                   razorpay_order_id: razorpayResponse.razorpay_order_id,
                   razorpay_payment_id: razorpayResponse.razorpay_payment_id,
                   razorpay_signature: razorpayResponse.razorpay_signature,
+                  orderId,
                 }),
               })
 
               const verifyData = await verifyResponse.json()
+              const paid = verifyData.success
+                ? await waitForPaidOrder(orderId, 6, 1500)
+                : await waitForPaidOrder(orderId, 8, 2000)
 
-              if (verifyData.success) {
-                // Payment verified — save order to Supabase with status 'paid'
-                const newOrder = await createOrder(items, form, paymentMethod, couponCode, razorpayResponse.razorpay_payment_id)
+              if (paid) {
+                localStorage.removeItem(PENDING_RAZORPAY_ORDER_KEY)
                 clearCart()
-                router.push(`/checkout/confirmation?orderId=${newOrder.id}`)
+                await refreshOrders()
+                router.push(`/checkout/confirmation?orderId=${orderId}`)
               } else {
-                alert('Payment verification failed. Please contact support.')
+                alert('Payment received. Confirming your order — please wait a moment and refresh checkout if needed.')
                 setLoading(false)
               }
             } catch (err) {
-              console.error('Order creation failed after payment:', err)
+              console.error('Order confirmation failed after payment:', err)
               alert(
-                'Payment received but order saving failed. Contact support with Payment ID: ' +
+                'Payment received. If this page closed, reopen the site — we will confirm your order. Payment ID: ' +
                   razorpayResponse.razorpay_payment_id
               )
               setLoading(false)
