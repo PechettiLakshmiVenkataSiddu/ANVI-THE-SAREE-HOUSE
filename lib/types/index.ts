@@ -33,6 +33,7 @@ export interface Product {
   isBestSeller?: boolean
   isFeatured?: boolean
   tags: string[]
+  stock?: number
 }
 
 export interface Category {
@@ -51,7 +52,7 @@ export interface CartItem {
   quantity: number
   color: string
   size: string
-  blouseOption: string
+  blouseOption?: string
 }
 
 export interface WishlistItem {

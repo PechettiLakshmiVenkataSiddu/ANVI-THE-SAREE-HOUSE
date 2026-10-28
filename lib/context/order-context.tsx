@@ -147,16 +147,39 @@ const estimatedDelivery = deliveryDate.toISOString()
         total,
       })
 
-      const { data, error } = await supabase
-        .from('orders')
-        .insert(orderData)
-        .select()
-        .single()
+      const isCod = paymentMethod !== 'Razorpay'
+      let data: any
 
-      if (error) {
-        console.error('[OrderContext] Error creating order:', error)
-        console.error('[OrderContext] Order payload:', orderData)
-        throw new Error('Failed to create order')
+      if (isCod) {
+        const response = await fetch('/api/orders/place-cod', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(orderData),
+        })
+        const payload = await response.json()
+        if (!response.ok) {
+          throw new Error(payload.error || 'Failed to create order')
+        }
+        data = payload.order
+      } else {
+        const insert = await supabase.from('orders').insert(orderData).select().single()
+        if (insert.error || !insert.data) {
+          console.error('[OrderContext] Error creating order:', insert.error)
+          console.error('[OrderContext] Order payload:', orderData)
+          throw new Error('Failed to create order')
+        }
+        data = insert.data
+
+        const stockResponse = await fetch('/api/stock/apply-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId: data.id }),
+        })
+        if (!stockResponse.ok) {
+          await supabase.from('orders').delete().eq('id', data.id)
+          const stockPayload = await stockResponse.json().catch(() => ({}))
+          throw new Error(stockPayload.error || 'One or more items are out of stock')
+        }
       }
 
       console.log('[OrderContext] Order created successfully:', data.id)

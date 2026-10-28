@@ -73,6 +73,7 @@ export async function signUpWithEmail(formData: SignUpData): Promise<AuthResult>
     email: formData.email.trim(),
     password: formData.password,
     options: {
+      emailRedirectTo: `${window.location.origin}/auth/callback`,
       data: {
         first_name: formData.firstName.trim(),
         last_name: formData.lastName.trim(),

@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { CheckCircle, Package, X } from 'lucide-react'
@@ -12,8 +12,12 @@ import { motion } from 'framer-motion'
 function ConfirmationContent() {
   const searchParams = useSearchParams()
   const orderId = searchParams.get('orderId')
-  const { getOrder } = useOrders()
+  const { getOrder, refreshOrders, isHydrated } = useOrders()
   const order = orderId ? getOrder(orderId) : null
+
+  useEffect(() => {
+    void refreshOrders()
+  }, [refreshOrders])
   const [cancelModalOpen, setCancelModalOpen] = useState(false)
   const [cancelling, setCancelling] = useState(false)
 
@@ -45,6 +49,14 @@ function ConfirmationContent() {
     } finally {
       setCancelling(false)
     }
+  }
+
+  if (!isHydrated) {
+    return (
+      <div className="text-center py-16">
+        <p className="text-muted-foreground">Loading your order...</p>
+      </div>
+    )
   }
 
   if (!order) {

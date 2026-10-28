@@ -14,9 +14,9 @@ export const revalidate = 0
 const features = [
   { icon: 'Package', title: 'PREMIUM QUALITY', description: 'Finest Fabrics' },
   { icon: 'Truck', title: 'FREE SHIPPING', description: 'Free delivery all over India' },
-  { icon: 'RotateCcw', title: 'EASY RETURNS', description: 'Within 7 days' },
+  { icon: 'BadgeCheck', title: 'CAREFUL PACKING', description: 'Safe delivery to you' },
   { icon: 'Lock', title: 'SECURE PAYMENTS', description: '100% Safe & Secure' },
-  { icon: 'Headphones', title: '24/7 SUPPORT', description: "We're here to help" },
+  { icon: 'Headphones', title: 'SUPPORT 9am-9pm', description: "We're here to help" },
 ] as const
 
 async function getProducts() {

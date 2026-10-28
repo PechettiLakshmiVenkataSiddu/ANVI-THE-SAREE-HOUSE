@@ -24,6 +24,7 @@ interface ProductCardProps {
   sizes?: any[]
   description?: string
   category?: string
+  stock?: number
 }
 
 export default function ProductCard({
@@ -40,6 +41,7 @@ export default function ProductCard({
   sizes = [],
   description = '',
   category = '',
+  stock,
 }: ProductCardProps) {
   const { toggleItem, isInWishlist } = useWishlist()
   const { addItem } = useCart()
@@ -105,11 +107,15 @@ export default function ProductCard({
     sizes,
     description,
     category,
+    stock,
   }
+
+  const outOfStock = typeof stock === 'number' && stock <= 0
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
+    if (outOfStock) return
     addItem(productObj as any)
   }
 
@@ -137,7 +143,12 @@ export default function ProductCard({
               className="object-cover group-hover:scale-105 transition-transform duration-500"
               sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw, 33vw"
             />
-            {discount > 0 && (
+            {outOfStock && (
+              <div className="absolute top-3 right-3 bg-foreground/80 text-background px-3 py-1 rounded-full text-xs font-semibold z-10">
+                Out of stock
+              </div>
+            )}
+            {!outOfStock && discount > 0 && (
               <div className="absolute top-3 right-3 bg-destructive text-white px-3 py-1 rounded-full text-xs font-semibold">
                 {discount}% OFF
               </div>
@@ -185,10 +196,11 @@ export default function ProductCard({
             </div>
             <button
               onClick={handleAddToCart}
-              className="w-full bg-primary text-primary-foreground py-2 rounded-md font-semibold text-sm hover:opacity-90 transition flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 md:opacity-100"
+              disabled={outOfStock}
+              className="w-full bg-primary text-primary-foreground py-2 rounded-md font-semibold text-sm hover:opacity-90 transition flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 md:opacity-100 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <ShoppingCart size={14} />
-              ADD TO CART
+              {outOfStock ? 'OUT OF STOCK' : 'ADD TO CART'}
             </button>
           </div>
         </div>

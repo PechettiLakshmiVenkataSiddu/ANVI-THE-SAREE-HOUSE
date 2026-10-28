@@ -7,6 +7,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useCart } from '@/lib/context/cart-context'
 import { calculateTotal } from '@/lib/utils/cart'
+import { cartStockIssue, fetchProductStocks } from '@/lib/utils/stock'
 
 interface CartDrawerProps {
   open: boolean
@@ -16,10 +17,17 @@ interface CartDrawerProps {
 export default function CartDrawer({ open, onClose }: CartDrawerProps) {
   const { items, updateQuantity, removeItem, couponCode } = useCart()
   const [totals, setTotals] = useState({ subtotal: 0, shipping: 0, discount: 0, total: 0 })
+  const [stocks, setStocks] = useState<Record<string, number>>({})
 
   useEffect(() => {
     calculateTotal(items, couponCode).then(setTotals)
   }, [items, couponCode])
+
+  useEffect(() => {
+    fetchProductStocks(items.map((item) => item.productId)).then(setStocks)
+  }, [items])
+
+  const availability = cartStockIssue(items, stocks)
 
   return (
     <AnimatePresence>
@@ -78,6 +86,9 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                           {item.color} · {item.size}
                         </p>
                         <p className="text-sm font-bold text-primary mt-1">₹{item.price.toLocaleString()}</p>
+                        {item.productId in stocks && (stocks[item.productId] ?? 0) <= 0 && (
+                          <p className="text-xs text-destructive font-semibold">Out of stock</p>
+                        )}
                         <div className="flex items-center gap-2 mt-2">
                           <div className="flex items-center border border-border rounded-md">
                             <button
@@ -139,6 +150,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                 >
                   View Cart
                 </Link>
+                {availability.ok ? (
                 <Link
                   href="/checkout"
                   onClick={onClose}
@@ -146,6 +158,15 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                 >
                   Proceed to Checkout
                 </Link>
+                ) : (
+                  <button
+                    type="button"
+                    disabled
+                    className="block w-full text-center bg-primary text-primary-foreground py-2.5 rounded-md font-semibold text-sm opacity-50 cursor-not-allowed"
+                  >
+                    Out of stock
+                  </button>
+                )}
               </div>
             )}
           </motion.div>

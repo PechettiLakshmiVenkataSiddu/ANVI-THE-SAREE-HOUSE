@@ -1,12 +1,11 @@
 'use client'
 
-import { Package, RotateCcw, Lock, Headphones } from 'lucide-react'
-
+import { Package, BadgeCheck, Lock, Headphones } from 'lucide-react'
 const badges = [
   { icon: Package, title: 'Premium Quality', desc: 'Finest Fabrics' },
-  { icon: RotateCcw, title: 'Easy Returns', desc: 'Within 7 Days' },
+  { icon: BadgeCheck, title: 'Careful Packing', desc: 'Safe delivery to you' },
   { icon: Lock, title: 'Secure Payments', desc: '100% Safe & Secure' },
-  { icon: Headphones, title: '24/7 Support', desc: "We're Here To Help" },
+  { icon: Headphones, title: 'SUPPORT 9am-9pm', desc: "We're Here To Help" },
 ]
 
 export default function AuthTrustBadges() {

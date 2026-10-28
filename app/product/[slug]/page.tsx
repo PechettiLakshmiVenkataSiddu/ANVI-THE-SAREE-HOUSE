@@ -2,7 +2,7 @@
 
 import { use, useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Heart, Share2, Star, Minus, Plus, Package, Truck, RotateCcw } from 'lucide-react'
+import { Heart, Share2, Star, Minus, Plus, Package, Truck, RotateCcw,BadgeCheck  } from 'lucide-react'
 import Header from '@/components/Header'
 import Footer from '@/components/layout/Footer'
 import Breadcrumbs from '@/components/layout/Breadcrumbs'
@@ -33,7 +33,6 @@ export default function ProductPage({ params }: ProductPageProps) {
 
   const [selectedColor, setSelectedColor] = useState('')
   const [selectedSize, setSelectedSize] = useState('')
-  const [selectedBlouse, setSelectedBlouse] = useState('')
   const [quantity, setQuantity] = useState(1)
 
   // Rating states
@@ -74,13 +73,11 @@ export default function ProductPage({ params }: ProductPageProps) {
       // Set defaults for selectors
       const colors = Array.isArray(data.colors) ? data.colors : []
       const sizes = Array.isArray(data.sizes) ? data.sizes : []
-      const blouseOptions = Array.isArray(data.blouse_options) ? data.blouse_options : []
 
       setSelectedColor(
         typeof colors[0] === 'string' ? colors[0] : colors[0]?.color ?? ''
       )
       setSelectedSize(sizes[0] ?? '')
-      setSelectedBlouse(blouseOptions[0] ?? '')
 
       // Fetch related products (same category)
       if (data.category) {
@@ -156,21 +153,27 @@ export default function ProductPage({ params }: ProductPageProps) {
   }
   const normalizedImages = images.map(normalizeImage)
 
+  const stock = Number(product.stock) || 0
+  const outOfStock = stock <= 0
+
   const productObj = {
     ...product,
     images: normalizedImages,
     originalPrice,
     blouseOptions,
     categoryLabel,
+    stock,
   }
 
-  const handleAddToCart = () => {
-    addItem(productObj, quantity, selectedColor, selectedSize, selectedBlouse)
+  const handleAddToCart = async () => {
+    if (outOfStock) return
+    await addItem(productObj, quantity, selectedColor, selectedSize)
   }
 
-  const handleBuyNow = () => {
-    addItem(productObj, quantity, selectedColor, selectedSize, selectedBlouse)
-    router.push('/checkout')
+  const handleBuyNow = async () => {
+    if (outOfStock) return
+    const added = await addItem(productObj, quantity, selectedColor, selectedSize)
+    if (added) router.push('/checkout')
   }
 
   const handleShare = async () => {
@@ -309,8 +312,7 @@ export default function ProductPage({ params }: ProductPageProps) {
                 {[
                   { icon: Package, title: 'PREMIUM QUALITY', desc: 'Finest Fabrics' },
                   { icon: Truck, title: 'FREE SHIPPING', desc: 'All over India' },
-                  { icon: RotateCcw, title: 'EASY RETURNS', desc: 'Within 7 days' },
-                ].map(({ icon: Icon, title, desc }) => (
+                  { icon: BadgeCheck, title: 'CAREFUL PACKING', desc: 'Safe delivery to you' },].map(({ icon: Icon, title, desc }) => (
                   <div key={title} className="flex items-center gap-2 p-3 bg-secondary/50 rounded-lg">
                     <Icon size={18} className="text-primary flex-shrink-0" />
                     <div>
@@ -370,28 +372,6 @@ export default function ProductPage({ params }: ProductPageProps) {
               </div>
             )}
 
-            {/* Blouse Options - Hidden on mobile */}
-            {blouseOptions.length > 0 && (
-              <div className="hidden md:block">
-                <label className="text-sm font-semibold mb-3 block">BLOUSE OPTION</label>
-                <div className="flex gap-2 flex-wrap mb-6">
-                  {blouseOptions.map((option: string) => (
-                    <button
-                      key={option}
-                      onClick={() => setSelectedBlouse(option)}
-                      className={`px-4 py-2 text-xs border rounded-md transition ${selectedBlouse === option
-                          ? 'border-primary bg-primary text-primary-foreground'
-                          : 'border-border hover:border-primary'
-                        }`}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-
             {/* Quantity */}
             <div className="flex items-center gap-4">
               <label className="text-sm font-semibold">QUANTITY</label>
@@ -406,25 +386,32 @@ export default function ProductPage({ params }: ProductPageProps) {
                   {quantity}
                 </span>
                 <button
-                  onClick={() => setQuantity(quantity + 1)}
-                  className="p-2.5 hover:bg-secondary"
+                  onClick={() => setQuantity(Math.min(Math.max(stock, 1), quantity + 1))}
+                  disabled={outOfStock || quantity >= stock}
+                  className="p-2.5 hover:bg-secondary disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <Plus size={16} />
                 </button>
               </div>
             </div>
 
+            {outOfStock && (
+              <p className="text-sm font-semibold text-destructive">Out of stock</p>
+            )}
+
             {/* Buttons */}
             <div className="space-y-3 pt-2">
               <button
                 onClick={handleAddToCart}
-                className="w-full bg-primary text-primary-foreground py-3.5 rounded-md font-semibold tracking-wide hover:opacity-90 transition"
+                disabled={outOfStock}
+                className="w-full bg-primary text-primary-foreground py-3.5 rounded-md font-semibold tracking-wide hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                ADD TO CART
+                {outOfStock ? 'OUT OF STOCK' : 'ADD TO CART'}
               </button>
               <button
                 onClick={handleBuyNow}
-                className="w-full border-2 border-primary text-primary py-3.5 rounded-md font-semibold tracking-wide hover:bg-secondary transition"
+                disabled={outOfStock}
+                className="w-full border-2 border-primary text-primary py-3.5 rounded-md font-semibold tracking-wide hover:bg-secondary transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 BUY NOW
               </button>
