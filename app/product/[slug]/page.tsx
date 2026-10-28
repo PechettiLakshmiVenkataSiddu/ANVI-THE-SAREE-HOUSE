@@ -2,7 +2,7 @@
 
 import { use, useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Heart, Share2, Star, Minus, Plus, Package, Truck, RotateCcw } from 'lucide-react'
+import { Heart, Share2, Star, Minus, Plus, Package, Truck, RotateCcw,BadgeCheck  } from 'lucide-react'
 import Header from '@/components/Header'
 import Footer from '@/components/layout/Footer'
 import Breadcrumbs from '@/components/layout/Breadcrumbs'
@@ -312,8 +312,7 @@ export default function ProductPage({ params }: ProductPageProps) {
                 {[
                   { icon: Package, title: 'PREMIUM QUALITY', desc: 'Finest Fabrics' },
                   { icon: Truck, title: 'FREE SHIPPING', desc: 'All over India' },
-                  { icon: RotateCcw, title: 'EASY RETURNS', desc: 'Within 7 days' },
-                ].map(({ icon: Icon, title, desc }) => (
+                  { icon: BadgeCheck, title: 'CAREFUL PACKING', desc: 'Safe delivery to you' },].map(({ icon: Icon, title, desc }) => (
                   <div key={title} className="flex items-center gap-2 p-3 bg-secondary/50 rounded-lg">
                     <Icon size={18} className="text-primary flex-shrink-0" />
                     <div>

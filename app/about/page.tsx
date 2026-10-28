@@ -31,7 +31,6 @@ export default function AboutPage() {
           <ul className="list-disc pl-6 space-y-2">
             <li>100% authentic fabrics and traditional weaving techniques</li>
             <li>Free shipping all over India</li>
-            <li>Easy 7-day returns on unworn items</li>
             <li>Secure payment options</li>
             <li>Dedicated customer support</li>
           </ul>

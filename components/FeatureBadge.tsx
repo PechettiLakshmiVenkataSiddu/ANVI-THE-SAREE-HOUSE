@@ -1,14 +1,14 @@
 "use client"
-import { Package, Truck, RotateCcw, Lock, Headphones } from 'lucide-react'
+import { Package, Truck, RotateCcw, BadgeCheck, Lock, Headphones } from 'lucide-react'
 
 const iconMap = {
   Package,
   Truck,
   RotateCcw,
+  BadgeCheck,
   Lock,
   Headphones,
 } as const
-
 type IconName = keyof typeof iconMap
 
 interface FeatureBadgeProps {
